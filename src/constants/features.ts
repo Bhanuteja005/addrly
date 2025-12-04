@@ -23,18 +23,7 @@ export const FEATURES = [
         title: "Application Management",
         description: "Review boyfriend/girlfriend applications like you're hiring for a Fortune 500. Read their vibes, check their internet presence, accept or reject with dignity.",
         icon: DatabaseIcon,
-        image: "/images/feature-three.svg",
-    },
-    {
-        title: "Digital Presence Analysis",
-        description: "Connect your Twitter, Instagram, Spotify, and blogs. The more chronically online you are, the better we match you. Your internet personality = your dating profile.",
-        icon: TrendingUpIcon,
-        image: "/images/feature-four.svg",
-    },
-    {
-        title: "Vibe Compatibility Score",
-        description: "Get AI-powered compatibility scores based on conversation styles, shared interests, and whether you both unironically enjoy the same niche internet culture.",
-        icon: ZapIcon,
         image: "/images/feature-five.svg",
-    }
+    },
+
 ]

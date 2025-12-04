@@ -86,7 +86,7 @@ const Hero = () => {
 
                             <div className="rounded-lg lg:rounded-[22px] border border-border bg-background">
                                 <Image
-                                    src="/images/dashboard.png"
+                                    src="/images/soul-modified.jpg"
                                     alt="dashboard"
                                     width={1920}
                                     height={1080}
