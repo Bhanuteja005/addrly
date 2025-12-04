@@ -45,7 +45,6 @@ const SignUpPage = () => {
                     data: {
                         full_name: fullName,
                     },
-                    emailRedirectTo: `${window.location.origin}/auth/callback`,
                 }
             });
 
@@ -54,8 +53,8 @@ const SignUpPage = () => {
             }
 
             if (data.user) {
-                toast.success("Account created! Please check your email to verify your account.");
-                router.push('/signin');
+                toast.success("Account created successfully!");
+                router.push('/onboarding');
             }
         } catch (err: any) {
             console.error('Sign up error:', err);

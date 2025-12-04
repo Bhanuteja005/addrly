@@ -181,6 +181,62 @@ export default function ApplicationsPage() {
           </Button>
         </div>
 
+        {/* Analytics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card className="bg-neutral-900 border-neutral-800">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-blue-500/20 rounded-lg">
+                  <Users className="w-6 h-6 text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-white">{applications.length}</p>
+                  <p className="text-sm text-neutral-400">Total Applications</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-neutral-900 border-neutral-800">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-green-500/20 rounded-lg">
+                  <Eye className="w-6 h-6 text-green-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-white">{applications.filter(a => a.status === 'new').length}</p>
+                  <p className="text-sm text-neutral-400">New Applications</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-neutral-900 border-neutral-800">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-yellow-500/20 rounded-lg">
+                  <Sparkles className="w-6 h-6 text-yellow-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-white">{applications.filter(a => a.status === 'shortlisted').length}</p>
+                  <p className="text-sm text-neutral-400">Shortlisted</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-neutral-900 border-neutral-800">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-purple-500/20 rounded-lg">
+                  <Heart className="w-6 h-6 text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-white">{Math.round(applications.reduce((acc, a) => acc + (a.ai_score || 0), 0) / Math.max(applications.length, 1))}</p>
+                  <p className="text-sm text-neutral-400">Avg AI Score</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Top Candidates Card */}
         {showTopCandidates && topCandidates.length > 0 && (
           <Card className="mb-8 bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20">

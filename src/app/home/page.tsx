@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase/client";
 import { apiClient } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LoaderIcon, Plus, Heart, Users, Settings, LogOut, FileText } from "lucide-react";
+import { LoaderIcon, Plus, Heart, Users, Settings, LogOut, FileText, Trophy } from "lucide-react";
 import Icons from "@/components/global/icons";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -99,6 +99,12 @@ export default function HomePage() {
                 <Button variant="ghost" size="sm" className="text-white hover:bg-neutral-800">
                   <Users className="w-4 h-4 mr-2" />
                   Applications
+                </Button>
+              </Link>
+              <Link href="/leaderboard">
+                <Button variant="ghost" size="sm" className="text-white hover:bg-neutral-800">
+                  <Trophy className="w-4 h-4 mr-2" />
+                  Leaderboard
                 </Button>
               </Link>
               <Link href="/account">

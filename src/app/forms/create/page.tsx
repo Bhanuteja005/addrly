@@ -15,7 +15,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { LoaderIcon, ArrowLeft, Plus, X, Check } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { LoaderIcon, ArrowLeft, Plus, X, Check, CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -36,7 +45,9 @@ export default function CreateFormPage() {
     { id: '1', type: 'short_answer', label: 'Name', required: true },
     { id: '2', type: 'short_answer', label: 'Email', required: true }
   ]);
-  const [showFieldMenu, setShowFieldMenu] = useState(false);
+  const [showFieldDialog, setShowFieldDialog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
+  const [createdFormId, setCreatedFormId] = useState<string | null>(null);
 
   const fieldTypes = [
     { value: 'short_answer', label: 'Short answer', icon: 'T' },
@@ -59,7 +70,7 @@ export default function CreateFormPage() {
       options: type === 'multiple_choice' ? ['Option 1', 'Option 2'] : undefined
     };
     setFields([...fields, newField]);
-    setShowFieldMenu(false);
+    setShowFieldDialog(false);
   };
 
   const updateField = (id: string, updates: Partial<FormField>) => {
@@ -90,7 +101,9 @@ export default function CreateFormPage() {
       });
 
       toast.success('Form published successfully!');
-      router.push(`/home`);
+      const formId = data.id || data.form?.id;
+      setCreatedFormId(formId);
+      setShowShareDialog(true);
     } catch (error: any) {
       console.error('Form creation error:', error);
       toast.error(error.response?.data?.message || 'Failed to create form');
@@ -215,9 +228,16 @@ export default function CreateFormPage() {
                         />
                       )}
                       
-                      {field.type === 'multiple_choice' && field.options && (
+                      {field.type === 'date' && (
+                        <Input
+                          type="date"
+                          disabled
+                          className="text-sm text-neutral-500 bg-neutral-800/50 border border-neutral-700"
+                        />
+                      )}
+                      {field.type === 'multiple_choice' && (
                         <div className="space-y-2">
-                          {field.options.map((option, i) => (
+                          {field.options!.map((option, i) => (
                             <div key={i} className="flex items-center gap-2">
                               <div className="w-4 h-4 rounded-full border-2 border-neutral-600" />
                               <Input
@@ -276,36 +296,83 @@ export default function CreateFormPage() {
         </Card>
 
         {/* Add Field Button */}
-        <div className="relative">
-          <Button
-            onClick={() => setShowFieldMenu(!showFieldMenu)}
-            variant="ghost"
-            className="text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-lg"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add new question
-            <kbd className="ml-2 px-2 py-0.5 text-xs border border-neutral-700 rounded bg-neutral-800 text-neutral-400">K</kbd>
-          </Button>
-
-          {/* Field Type Menu */}
-          {showFieldMenu && (
-            <Card className="absolute top-12 left-0 bg-neutral-900 border border-neutral-800 shadow-2xl z-10 w-64">
-              <CardContent className="p-2">
-                {fieldTypes.map((type) => (
-                  <button
-                    key={type.value}
-                    onClick={() => addField(type.value as FormField['type'])}
-                    className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-800 rounded-lg text-left transition-colors"
-                  >
-                    <span className="text-lg">{type.icon}</span>
-                    <span className="text-sm font-medium text-neutral-300">{type.label}</span>
-                  </button>
-                ))}
-              </CardContent>
-            </Card>
-          )}
-        </div>
+        <Dialog open={showFieldDialog} onOpenChange={setShowFieldDialog}>
+          <DialogTrigger asChild>
+            <Button
+              variant="ghost"
+              className="text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-lg"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add new question
+              <kbd className="ml-2 px-2 py-0.5 text-xs border border-neutral-700 rounded bg-neutral-800 text-neutral-400">K</kbd>
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-neutral-900 border-neutral-800">
+            <DialogHeader>
+              <DialogTitle className="text-white">Add a new question</DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-2 gap-2">
+              {fieldTypes.map((type) => (
+                <button
+                  key={type.value}
+                  onClick={() => addField(type.value as FormField['type'])}
+                  className="flex items-center gap-3 px-3 py-2 hover:bg-neutral-800 rounded-lg text-left transition-colors"
+                >
+                  <span className="text-lg">{type.icon}</span>
+                  <span className="text-sm font-medium text-neutral-300">{type.label}</span>
+                </button>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
       </main>
+
+      {/* Share Dialog */}
+      <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+        <DialogContent className="bg-neutral-900 border-neutral-800">
+          <DialogHeader>
+            <DialogTitle className="text-white">Form Published!</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-neutral-300">Your form is now live and ready to receive applications.</p>
+            <div>
+              <Label className="text-neutral-300">Share Link</Label>
+              <div className="flex gap-2 mt-2">
+                <Input
+                  value={`${window.location.origin}/forms/${createdFormId}`}
+                  readOnly
+                  className="bg-neutral-800 border-neutral-700 text-white"
+                />
+                <Button
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/forms/${createdFormId}`);
+                    toast.success('Link copied to clipboard!');
+                  }}
+                  variant="outline"
+                  className="border-neutral-700 text-white hover:bg-neutral-800"
+                >
+                  Copy
+                </Button>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => router.push('/home')}
+                className="flex-1 bg-neutral-800 hover:bg-neutral-700 text-white"
+              >
+                Go to Dashboard
+              </Button>
+              <Button
+                onClick={() => router.push(`/forms/${createdFormId}/edit`)}
+                variant="outline"
+                className="border-neutral-700 text-white hover:bg-neutral-800"
+              >
+                Edit Form
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
