@@ -17,6 +17,7 @@ import { OnboardingFormData } from "@/types/user";
 const OnboardingPage = () => {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const [isChecking, setIsChecking] = useState(true);
     const [currentStep, setCurrentStep] = useState(1);
     const totalSteps = 5;
 
@@ -53,10 +54,26 @@ const OnboardingPage = () => {
     }, [router]);
 
     const checkAuth = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-            router.push('/signin');
-        } else {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                router.push('/signin');
+                return;
+            }
+
+            // Check if user has already completed onboarding
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('profile_completed')
+                .eq('id', session.user.id)
+                .single();
+
+            if (profile?.profile_completed) {
+                // User already completed onboarding, redirect to home
+                router.push('/home');
+                return;
+            }
+
             // Pre-fill name from auth metadata
             if (session.user.user_metadata?.full_name) {
                 setFormData(prev => ({
@@ -64,6 +81,10 @@ const OnboardingPage = () => {
                     full_name: session.user.user_metadata.full_name
                 }));
             }
+        } catch (error) {
+            console.error('Auth check error:', error);
+        } finally {
+            setIsChecking(false);
         }
     };
 
@@ -207,38 +228,46 @@ const OnboardingPage = () => {
         "No Pets", "Long Distance"
     ];
 
+    if (isChecking) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950">
+                <LoaderIcon className="w-8 h-8 animate-spin text-white" />
+            </div>
+        );
+    }
+
     return (
-        <div className="min-h-screen bg-neutral-50 py-12 px-4">
+        <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 py-12 px-4">
             <div className="max-w-3xl mx-auto">
                 {/* Progress Bar */}
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-2">
-                        <h2 className="text-sm font-medium text-neutral-600">
+                        <h2 className="text-sm font-medium text-neutral-300">
                             Step {currentStep} of {totalSteps}
                         </h2>
-                        <span className="text-sm text-neutral-500">
+                        <span className="text-sm text-neutral-400">
                             {Math.round((currentStep / totalSteps) * 100)}% Complete
                         </span>
                     </div>
-                    <div className="w-full h-2 bg-neutral-200 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-neutral-800 rounded-full overflow-hidden">
                         <div 
-                            className="h-full bg-neutral-900 transition-all duration-300 ease-out"
+                            className="h-full bg-gradient-to-r from-pink-500 to-purple-600 transition-all duration-300 ease-out"
                             style={{ width: `${(currentStep / totalSteps) * 100}%` }}
                         />
                     </div>
                 </div>
 
                 {/* Form Container */}
-                <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 p-8">
+                <div className="bg-neutral-900/50 backdrop-blur-xl rounded-2xl border border-neutral-800 p-8 shadow-2xl">
                     <form onSubmit={handleSubmit} className="space-y-8">
                         {/* Step 1: Basic Information */}
                         {currentStep === 1 && (
                             <div className="space-y-6">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-neutral-900 mb-2">
+                                    <h1 className="text-3xl font-bold text-white mb-2">
                                         Let's start with the basics
                                     </h1>
-                                    <p className="text-neutral-600">
+                                    <p className="text-neutral-400">
                                         Tell us a bit about yourself
                                     </p>
                                 </div>
@@ -327,10 +356,10 @@ const OnboardingPage = () => {
                         {currentStep === 2 && (
                             <div className="space-y-6">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-neutral-900 mb-2">
+                                    <h1 className="text-3xl font-bold text-white mb-2">
                                         Where are you and what's your story?
                                     </h1>
-                                    <p className="text-neutral-600">
+                                    <p className="text-neutral-400">
                                         Help others get to know you better
                                     </p>
                                 </div>
@@ -398,10 +427,10 @@ const OnboardingPage = () => {
                         {currentStep === 3 && (
                             <div className="space-y-6">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-neutral-900 mb-2">
+                                    <h1 className="text-3xl font-bold text-white mb-2">
                                         What do you love doing?
                                     </h1>
-                                    <p className="text-neutral-600">
+                                    <p className="text-neutral-400">
                                         Select your interests and hobbies (Choose at least 3)
                                     </p>
                                 </div>
@@ -409,16 +438,15 @@ const OnboardingPage = () => {
                                 <div className="space-y-6">
                                     <div>
                                         <Label className="text-base mb-3 block">Interests *</Label>
-                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                             {interestOptions.map((interest) => (
                                                 <div
                                                     key={interest}
-                                                    className={`flex items-center space-x-2 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                                                    className={`flex items-center space-x-2 p-4 rounded-lg border-2 transition-all min-h-[48px] ${
                                                         formData.interests.includes(interest)
-                                                            ? 'border-neutral-900 bg-neutral-50'
-                                                            : 'border-neutral-200 hover:border-neutral-300'
+                                                            ? 'border-pink-500 bg-pink-500/10 text-white'
+                                                            : 'border-neutral-700 hover:border-neutral-600 text-neutral-300'
                                                     }`}
-                                                    onClick={() => handleArrayToggle('interests', interest)}
                                                 >
                                                     <Checkbox
                                                         id={`interest-${interest}`}
@@ -427,7 +455,7 @@ const OnboardingPage = () => {
                                                     />
                                                     <Label
                                                         htmlFor={`interest-${interest}`}
-                                                        className="cursor-pointer flex-1"
+                                                        className="cursor-pointer flex-1 text-sm leading-tight"
                                                     >
                                                         {interest}
                                                     </Label>
@@ -438,16 +466,15 @@ const OnboardingPage = () => {
 
                                     <div>
                                         <Label className="text-base mb-3 block">Hobbies</Label>
-                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                             {hobbyOptions.map((hobby) => (
                                                 <div
                                                     key={hobby}
-                                                    className={`flex items-center space-x-2 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                                                    className={`flex items-center space-x-2 p-4 rounded-lg border-2 transition-all min-h-[48px] ${
                                                         formData.hobbies?.includes(hobby)
-                                                            ? 'border-neutral-900 bg-neutral-50'
-                                                            : 'border-neutral-200 hover:border-neutral-300'
+                                                            ? 'border-purple-500 bg-purple-500/10 text-white'
+                                                            : 'border-neutral-700 hover:border-neutral-600 text-neutral-300'
                                                     }`}
-                                                    onClick={() => handleArrayToggle('hobbies', hobby)}
                                                 >
                                                     <Checkbox
                                                         id={`hobby-${hobby}`}
@@ -456,7 +483,7 @@ const OnboardingPage = () => {
                                                     />
                                                     <Label
                                                         htmlFor={`hobby-${hobby}`}
-                                                        className="cursor-pointer flex-1"
+                                                        className="cursor-pointer flex-1 text-sm leading-tight"
                                                     >
                                                         {hobby}
                                                     </Label>
@@ -472,10 +499,10 @@ const OnboardingPage = () => {
                         {currentStep === 4 && (
                             <div className="space-y-6">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-neutral-900 mb-2">
+                                    <h1 className="text-3xl font-bold text-white mb-2">
                                         What are you looking for?
                                     </h1>
-                                    <p className="text-neutral-600">
+                                    <p className="text-neutral-400">
                                         Tell us about your ideal match
                                     </p>
                                 </div>
@@ -550,16 +577,15 @@ const OnboardingPage = () => {
 
                                     <div>
                                         <Label className="text-base mb-3 block">Important Values</Label>
-                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                             {valueOptions.map((value) => (
                                                 <div
                                                     key={value}
-                                                    className={`flex items-center space-x-2 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                                                    className={`flex items-center space-x-2 p-4 rounded-lg border-2 transition-all min-h-[48px] ${
                                                         formData.values?.includes(value)
-                                                            ? 'border-neutral-900 bg-neutral-50'
-                                                            : 'border-neutral-200 hover:border-neutral-300'
+                                                            ? 'border-blue-500 bg-blue-500/10 text-white'
+                                                            : 'border-neutral-700 hover:border-neutral-600 text-neutral-300'
                                                     }`}
-                                                    onClick={() => handleArrayToggle('values', value)}
                                                 >
                                                     <Checkbox
                                                         id={`value-${value}`}
@@ -568,7 +594,7 @@ const OnboardingPage = () => {
                                                     />
                                                     <Label
                                                         htmlFor={`value-${value}`}
-                                                        className="cursor-pointer flex-1"
+                                                        className="cursor-pointer flex-1 text-sm leading-tight"
                                                     >
                                                         {value}
                                                     </Label>
@@ -579,16 +605,15 @@ const OnboardingPage = () => {
 
                                     <div>
                                         <Label className="text-base mb-3 block">Deal Breakers</Label>
-                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                             {dealBreakerOptions.map((breaker) => (
                                                 <div
                                                     key={breaker}
-                                                    className={`flex items-center space-x-2 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                                                    className={`flex items-center space-x-2 p-4 rounded-lg border-2 transition-all min-h-[48px] ${
                                                         formData.deal_breakers?.includes(breaker)
-                                                            ? 'border-red-500 bg-red-50'
-                                                            : 'border-neutral-200 hover:border-neutral-300'
+                                                            ? 'border-red-500 bg-red-500/10 text-white'
+                                                            : 'border-neutral-700 hover:border-neutral-600 text-neutral-300'
                                                     }`}
-                                                    onClick={() => handleArrayToggle('deal_breakers', breaker)}
                                                 >
                                                     <Checkbox
                                                         id={`breaker-${breaker}`}
@@ -597,7 +622,7 @@ const OnboardingPage = () => {
                                                     />
                                                     <Label
                                                         htmlFor={`breaker-${breaker}`}
-                                                        className="cursor-pointer flex-1"
+                                                        className="cursor-pointer flex-1 text-sm leading-tight"
                                                     >
                                                         {breaker}
                                                     </Label>
@@ -613,10 +638,10 @@ const OnboardingPage = () => {
                         {currentStep === 5 && (
                             <div className="space-y-6">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-neutral-900 mb-2">
+                                    <h1 className="text-3xl font-bold text-white mb-2">
                                         Connect your social media (Optional)
                                     </h1>
-                                    <p className="text-neutral-600">
+                                    <p className="text-neutral-400">
                                         This helps us analyze your personality and find better matches
                                     </p>
                                 </div>
@@ -666,9 +691,9 @@ const OnboardingPage = () => {
                                         />
                                     </div>
 
-                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-                                        <h3 className="font-semibold text-blue-900 mb-2">🔒 Privacy Note</h3>
-                                        <p className="text-sm text-blue-800">
+                                    <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mt-6">
+                                        <h3 className="font-semibold text-blue-400 mb-2">🔒 Privacy Note</h3>
+                                        <p className="text-sm text-neutral-300">
                                             Your social media information is used only for AI-powered personality analysis 
                                             to find compatible matches. We never post on your behalf or share your data publicly.
                                         </p>
@@ -678,13 +703,13 @@ const OnboardingPage = () => {
                         )}
 
                         {/* Navigation Buttons */}
-                        <div className="flex items-center justify-between pt-6 border-t border-neutral-200">
+                        <div className="flex items-center justify-between pt-6 border-t border-neutral-800">
                             <Button
                                 type="button"
                                 variant="outline"
                                 onClick={prevStep}
                                 disabled={currentStep === 1}
-                                className="rounded-full"
+                                className="rounded-full border-neutral-700 text-neutral-300 hover:bg-neutral-800 hover:text-white"
                             >
                                 <ChevronLeft className="w-4 h-4 mr-2" />
                                 Previous
@@ -694,7 +719,7 @@ const OnboardingPage = () => {
                                 <Button
                                     type="button"
                                     onClick={nextStep}
-                                    className="rounded-full bg-neutral-900 text-white hover:bg-neutral-800"
+                                    className="rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:from-pink-600 hover:to-purple-700"
                                 >
                                     Next
                                     <ChevronRight className="w-4 h-4 ml-2" />
@@ -703,7 +728,7 @@ const OnboardingPage = () => {
                                 <Button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="rounded-full bg-neutral-900 text-white hover:bg-neutral-800"
+                                    className="rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:from-pink-600 hover:to-purple-700"
                                 >
                                     {isLoading ? (
                                         <>

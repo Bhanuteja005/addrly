@@ -40,10 +40,10 @@ export default function AuthCallback() {
     }, [router]);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950">
             <div className="text-center">
-                <LoaderIcon className="w-8 h-8 animate-spin mx-auto text-neutral-900" />
-                <p className="mt-4 text-neutral-600">Completing sign in...</p>
+                <LoaderIcon className="w-8 h-8 animate-spin mx-auto text-white" />
+                <p className="mt-4 text-neutral-400">Completing sign in...</p>
             </div>
         </div>
     );

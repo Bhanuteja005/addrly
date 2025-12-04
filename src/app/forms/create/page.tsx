@@ -100,19 +100,19 @@ export default function CreateFormPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950">
       {/* Header */}
-      <header className="bg-white border-b border-neutral-200 sticky top-0 z-50">
+      <header className="bg-neutral-900/50 backdrop-blur-xl border-b border-neutral-800 sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/home">
-                <Button variant="ghost" size="sm" className="rounded-full">
+                <Button variant="ghost" size="sm" className="rounded-full text-white hover:bg-neutral-800">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back
                 </Button>
               </Link>
-              <span className="text-sm text-neutral-500">Changes saved.</span>
+              <span className="text-sm text-neutral-400">Changes saved.</span>
             </div>
             <div className="flex items-center gap-3">
               <Button
@@ -139,7 +139,7 @@ export default function CreateFormPage() {
               <Button
                 onClick={handlePublish}
                 disabled={isLoading}
-                className="rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white font-medium px-6"
+                className="rounded-lg bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-medium px-6"
               >
                 {isLoading ? (
                   <LoaderIcon className="w-4 h-4 animate-spin" />
@@ -152,7 +152,7 @@ export default function CreateFormPage() {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-12">
-        <Card className="bg-white border border-neutral-200 shadow-sm mb-4">
+        <Card className="bg-neutral-900/50 backdrop-blur-xl border border-neutral-800 shadow-2xl mb-4">
           <CardContent className="p-12">
             {/* Title */}
             <div className="mb-6">
@@ -160,7 +160,7 @@ export default function CreateFormPage() {
                 placeholder="Title"
                 value={formTitle}
                 onChange={(e) => setFormTitle(e.target.value)}
-                className="text-4xl font-bold border-0 border-b border-dotted border-neutral-300 rounded-none px-0 focus-visible:ring-0 focus-visible:border-neutral-900"
+                className="text-4xl font-bold text-white border-0 border-b border-dotted border-neutral-700 rounded-none px-0 focus-visible:ring-0 focus-visible:border-pink-500 bg-transparent placeholder:text-neutral-600"
               />
             </div>
 
@@ -170,7 +170,7 @@ export default function CreateFormPage() {
                 placeholder="Add a description"
                 value={formDescription}
                 onChange={(e) => setFormDescription(e.target.value)}
-                className="text-sm text-neutral-600 border-0 resize-none focus-visible:ring-0 px-0 min-h-[60px]"
+                className="text-sm text-neutral-400 border-0 resize-none focus-visible:ring-0 px-0 min-h-[60px] bg-transparent placeholder:text-neutral-600"
               />
             </div>
 
@@ -184,7 +184,7 @@ export default function CreateFormPage() {
                         <Input
                           value={field.label}
                           onChange={(e) => updateField(field.id, { label: e.target.value })}
-                          className="font-medium border-0 border-b border-transparent hover:border-neutral-200 focus:border-neutral-900 rounded-none px-0 focus-visible:ring-0"
+                          className="font-medium text-white border-0 border-b border-transparent hover:border-neutral-700 focus:border-pink-500 rounded-none px-0 focus-visible:ring-0 bg-transparent"
                         />
                         {field.required && (
                           <span className="text-red-500">*</span>
@@ -192,7 +192,7 @@ export default function CreateFormPage() {
                       </div>
                       
                       {field.type === 'short_answer' && (
-                        <div className="border-b border-neutral-200 pb-2 text-sm text-neutral-400">
+                        <div className="border-b border-neutral-700 pb-2 text-sm text-neutral-500">
                           Short answer text
                         </div>
                       )}
@@ -201,7 +201,7 @@ export default function CreateFormPage() {
                         <Textarea
                           disabled
                           placeholder="Long answer text"
-                          className="text-sm text-neutral-400 border border-neutral-200 rounded-lg"
+                          className="text-sm text-neutral-500 bg-neutral-800/50 border border-neutral-700 rounded-lg placeholder:text-neutral-600"
                           rows={3}
                         />
                       )}
@@ -211,7 +211,7 @@ export default function CreateFormPage() {
                           type="number"
                           disabled
                           placeholder="Number"
-                          className="text-sm text-neutral-400 border border-neutral-200"
+                          className="text-sm text-neutral-500 bg-neutral-800/50 border border-neutral-700 placeholder:text-neutral-600"
                         />
                       )}
                       
@@ -219,7 +219,7 @@ export default function CreateFormPage() {
                         <div className="space-y-2">
                           {field.options.map((option, i) => (
                             <div key={i} className="flex items-center gap-2">
-                              <div className="w-4 h-4 rounded-full border-2 border-neutral-300" />
+                              <div className="w-4 h-4 rounded-full border-2 border-neutral-600" />
                               <Input
                                 value={option}
                                 onChange={(e) => {
@@ -227,7 +227,7 @@ export default function CreateFormPage() {
                                   newOptions[i] = e.target.value;
                                   updateField(field.id, { options: newOptions });
                                 }}
-                                className="text-sm border-0 border-b border-transparent hover:border-neutral-200 focus:border-neutral-900 rounded-none px-0 focus-visible:ring-0"
+                                className="text-sm text-white border-0 border-b border-transparent hover:border-neutral-700 focus:border-pink-500 rounded-none px-0 focus-visible:ring-0 bg-transparent"
                               />
                             </div>
                           ))}
@@ -238,7 +238,7 @@ export default function CreateFormPage() {
                               const newOptions = [...(field.options || []), `Option ${(field.options?.length || 0) + 1}`];
                               updateField(field.id, { options: newOptions });
                             }}
-                            className="text-neutral-600 hover:text-neutral-900"
+                            className="text-neutral-400 hover:text-white hover:bg-neutral-800"
                           >
                             <Plus className="w-4 h-4 mr-1" />
                             Add option
@@ -280,25 +280,25 @@ export default function CreateFormPage() {
           <Button
             onClick={() => setShowFieldMenu(!showFieldMenu)}
             variant="ghost"
-            className="text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg"
+            className="text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-lg"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add new question
-            <kbd className="ml-2 px-2 py-0.5 text-xs border border-neutral-300 rounded bg-neutral-50">K</kbd>
+            <kbd className="ml-2 px-2 py-0.5 text-xs border border-neutral-700 rounded bg-neutral-800 text-neutral-400">K</kbd>
           </Button>
 
           {/* Field Type Menu */}
           {showFieldMenu && (
-            <Card className="absolute top-12 left-0 bg-white border shadow-lg z-10 w-64">
+            <Card className="absolute top-12 left-0 bg-neutral-900 border border-neutral-800 shadow-2xl z-10 w-64">
               <CardContent className="p-2">
                 {fieldTypes.map((type) => (
                   <button
                     key={type.value}
                     onClick={() => addField(type.value as FormField['type'])}
-                    className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-100 rounded-lg text-left transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-800 rounded-lg text-left transition-colors"
                   >
                     <span className="text-lg">{type.icon}</span>
-                    <span className="text-sm font-medium text-neutral-700">{type.label}</span>
+                    <span className="text-sm font-medium text-neutral-300">{type.label}</span>
                   </button>
                 ))}
               </CardContent>

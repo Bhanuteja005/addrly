@@ -7,6 +7,7 @@ import { apiClient } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoaderIcon, Plus, Heart, Users, Settings, LogOut, FileText } from "lucide-react";
+import Icons from "@/components/global/icons";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -84,7 +85,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Heart className="w-6 h-6 text-pink-500" />
+              <Icons.icon className="w-6 h-6 text-white" />
               <h1 className="text-2xl font-bold text-white">Addrly</h1>
             </div>
             <nav className="flex items-center gap-4">
@@ -133,9 +134,9 @@ export default function HomePage() {
         </div>
 
         {/* Create Form Button */}
-        <Card className="mb-8 bg-gradient-to-br from-pink-500/10 to-purple-500/10 border-pink-500/20">
+        <Card className="mb-8 bg-gradient-to-br from-purple-500/10 to-purple-500/10 border-purple-500/20">
           <CardContent className="py-12 text-center">
-            <Heart className="w-16 h-16 text-pink-500 mx-auto mb-4" />
+            <Icons.icon  className="w-16 h-16 text-500 mx-auto mb-4" />
             <h3 className="text-2xl font-semibold text-white mb-4">
               Create Your Dating Form
             </h3>
@@ -144,7 +145,7 @@ export default function HomePage() {
             </p>
             <Button 
               onClick={handleCreateForm}
-              className="rounded-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-medium px-8 py-6 text-lg"
+              className="rounded-full bg-gradient-to-r from-purple-500 to-purple-500 hover:from-purple-600 hover:to-purple-600 text-white font-medium px-8 py-6 text-lg"
             >
               <Plus className="w-5 h-5 mr-2" />
               New Dating Form
