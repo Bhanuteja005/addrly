@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
@@ -48,6 +48,13 @@ export default function CreateFormPage() {
   const [showFieldDialog, setShowFieldDialog] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [createdFormId, setCreatedFormId] = useState<string | null>(null);
+  const [origin, setOrigin] = useState('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setOrigin(window.location.origin);
+    }
+  }, []);
 
   const fieldTypes = [
     { value: 'short_answer', label: 'Short answer', icon: 'T' },
@@ -132,7 +139,7 @@ export default function CreateFormPage() {
                 variant="ghost"
                 size="icon"
                 className="rounded-full"
-                onClick={() => window.open('/forms/preview', '_blank')}
+                onClick={() => typeof window !== 'undefined' && window.open('/forms/preview', '_blank')}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -339,14 +346,16 @@ export default function CreateFormPage() {
               <Label className="text-neutral-300">Share Link</Label>
               <div className="flex gap-2 mt-2">
                 <Input
-                  value={`${window.location.origin}/forms/${createdFormId}`}
+                  value={`${origin}/forms/${createdFormId}`}
                   readOnly
                   className="bg-neutral-800 border-neutral-700 text-white"
                 />
                 <Button
                   onClick={() => {
-                    navigator.clipboard.writeText(`${window.location.origin}/forms/${createdFormId}`);
-                    toast.success('Link copied to clipboard!');
+                    if (typeof navigator !== 'undefined') {
+                      navigator.clipboard.writeText(`${origin}/forms/${createdFormId}`);
+                      toast.success('Link copied to clipboard!');
+                    }
                   }}
                   variant="outline"
                   className="border-neutral-700 text-white hover:bg-neutral-800"
