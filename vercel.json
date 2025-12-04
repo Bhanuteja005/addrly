@@ -1,4 +1,3 @@
-# Vercel Configuration for Addrly
 {
   "framework": "nextjs",
   "buildCommand": "npm run build",
