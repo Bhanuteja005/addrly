@@ -1,19 +1,10 @@
-<img src="https://github.com/user-attachments/assets/9594d359-0988-4fec-b588-0dcee51168e3" alt="Addrly Logo" width="50" height="50">
 
 # 🚀 Addrly - Dating App for the Chronically Online
-
-<img src="https://github.com/user-attachments/assets/df541304-ea1c-4ebe-b6fd-2e093680314f" alt="Addrly Thumbnail">
 
 ## 🌟 Introduction
 Addrly is the unhinged dating app that matches you based on your entire internet personality. Create your DateMeDoc, let people apply to date you, and find your chronically online soulmate through AI-powered psychoanalysis of your digital footprint. Built with modern technologies, it offers a sleek interface for managing applications, compatibility matching, and personality analytics.
 
-## 🔗 Live Preview
 
-Check out the live demo of Addrly here: [Live Preview](https://Addrly-app.vercel.app/)
-
-## 🎥 Watch the Preview Video on YouTube
-
-Take a look at YouTube video by watching the demo: [Watch the Video](https://youtu.be/dfQ_WwWV6g8) 
 
 ## 💻 Tech Stack
 
@@ -84,15 +75,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 5. Open a Pull Request
 
 
-## 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-
-## ☕ Buy Me a Coffee
-If you enjoy using this project, consider supporting my work!  
-[Buy Me a Coffee ☕](https://buymeacoffee.com/shreyas29)
-
----
-
-Built with ❤️ by [Shreyas Sihasane](https://shreyas-sihasane.vercel.app)
