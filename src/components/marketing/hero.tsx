@@ -80,7 +80,7 @@ const Hero = () => {
                         </div>
                     </Container>
                     <Container delay={0.3} className="relative">
-                        <div className="relative rounded-xl lg:rounded-[32px] border border-border p-2 backdrop-blur-lg -mt-1 max-w-6xl mx-auto">
+                        <div className="relative rounded-xl lg:rounded-[32px] border border-border p-2 backdrop-blur-lg mt-0 max-w-6xl mx-auto">
                             <div className="absolute top-1/8 left-1/2 -z-10 bg-gradient-to-r from-sky-500 to-blue-600 w-1/2 lg:w-3/4 -translate-x-1/2 h-1/4 -translate-y-1/2 inset-0 blur-[4rem] lg:blur-[10rem] animate-image-glow"></div>
                             <div className="hidden lg:block absolute -top-1/8 left-1/2 -z-20 bg-blue-600 w-1/4 -translate-x-1/2 h-1/4 -translate-y-1/2 inset-0 blur-[10rem] animate-image-glow"></div>
 
@@ -89,7 +89,7 @@ const Hero = () => {
                                     src="/images/soul-modified.jpg"
                                     alt="dashboard"
                                     width={1920}
-                                    height={1080}
+                                    height={580}
                                     className="rounded-lg lg:rounded-[20px]"
                                 />
                             </div>

@@ -13,7 +13,6 @@ const HomePage = () => {
         <Wrapper className="py-20 relative">
             <Hero />
             <Features />
-            <Analysis />
             <Integration />
             <LanguageSupport />
             <CTA />
