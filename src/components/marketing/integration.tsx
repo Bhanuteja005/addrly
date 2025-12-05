@@ -69,7 +69,7 @@ const Integration = () => {
             </Container>
 
             <div className="flex flex-col items-center text-center max-w-3xl mx-auto lg:absolute lg:top-1/4 inset-x-0 mt-12 lg:mt-0">
-                <h2 className="text-2xl md:text-4xl lg:text-6xl font-heading font-semibold !leading-snug">
+                <h2 className="text-3xl md:text-4xl lg:text-6xl font-heading font-normal !leading-snug">
                     Connect Your Internet Personality
                 </h2>
             </div>

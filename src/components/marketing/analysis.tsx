@@ -8,7 +8,7 @@ const Analysis = () => {
         <div className="relative flex flex-col items-center justify-center w-full py-20">
             <Container>
                 <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-16">
-                    <h2 className="text-2xl md:text-4xl lg:text-5xl font-heading font-medium !leading-snug">
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-medium !leading-snug">
                         Your dating  <br /><span className="font-subheading italic">analytics</span>
                     </h2>
                     <p className="text-base md:text-lg text-accent-foreground/80 mt-4">

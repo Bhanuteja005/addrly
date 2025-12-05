@@ -7,7 +7,7 @@ const LanguageSupport = () => {
         <div className="relative flex flex-col items-center justify-center max-w-5xl py-20 mx-auto">
             <Container>
                 <div className="flex flex-col items-center justify-center w-full max-w-3xl mx-auto text-center">
-                    <h2 className="text-2xl md:text-4xl lg:text-5xl font-heading font-medium !leading-snug mb-6">
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-medium !leading-snug mb-6">
                         We analyze 60+ <span className="font-subheading italic">personality</span> traits to find your match
                     </h2>
                 </div>

@@ -1,12 +1,22 @@
-import { ArrowRightIcon } from "lucide-react";
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import Container from "../global/container";
 import Icons from "../global/icons";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import { OrbitingCircles } from "../ui/orbiting-circles";
 
 const Hero = () => {
+    const [email, setEmail] = useState("");
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        // TODO: Handle waitlist submission
+        console.log("Waitlist signup:", email);
+        setEmail("");
+    };
     return (
         <div className="relative flex flex-col items-center justify-center w-full py-16 lg:py-24 overflow-hidden">
 
@@ -56,7 +66,7 @@ const Hero = () => {
                         </button>
                     </Container>
                     <Container delay={0.15}>
-                        <h1 className="text-4xl md:text-4xl lg:text-7xl font-normal text-center !leading-tight max-w-4xl mx-auto">
+                        <h1 className="text-5xl md:text-5xl lg:text-7xl font-normal text-center !leading-tight max-w-4xl mx-auto">
                             Find your {" "}
                             <span className="">
                                 chronically online {" "}
@@ -65,22 +75,27 @@ const Hero = () => {
                         </h1>
                     </Container>
                     <Container delay={0.2}>
-                        <p className="max-w-xl mx-auto mt-2 text-base lg:text-lg text-center text-muted-foreground">
+                        <p className="max-w-2xl mx-auto mt-2 text-base lg:text-lg text-center text-muted-foreground">
                             The dating app that psychoanalyzes your entire internet presence. Create a DateMeDoc, accept boyfriend applications, and let AI match you based on vibes.
                         </p>
                     </Container>
-                    <Container delay={0.25} className="z-20">
-                        <div className="flex items-center justify-center mt-6 gap-x-4">
-                            <Link href="/signup" className="flex items-center gap-2 group">
-                                <Button size="lg">
-                                    Create Your DateMeDoc
-                                    <ArrowRightIcon className="size-4 group-hover:translate-x-1 transition-all duration-300" />
-                                </Button>
-                            </Link>
-                        </div>
+                    <Container delay={0.25} className="z-20 flex justify-center">
+                        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6 w-full max-w-md mx-auto">
+                            <Input
+                                type="email"
+                                placeholder="Enter your email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                className="h-12 bg-background/80 border-foreground/20 placeholder:text-muted-foreground/60"
+                            />
+                            <Button type="submit" size="lg" className="w-full sm:w-auto whitespace-nowrap">
+                                Join Waitlist
+                            </Button>
+                        </form>
                     </Container>
                     <Container delay={0.3} className="relative">
-                        <div className="relative rounded-xl lg:rounded-[32px] border border-border p-2 backdrop-blur-lg mt-0 max-w-6xl mx-auto">
+                        <div className="relative rounded-xl lg:rounded-[32px] border border-border p-2 backdrop-blur-lg mt-10 max-w-6xl mx-auto">
                             <div className="rounded-lg lg:rounded-[22px] border border-border bg-background">
                                 <Image
                                     src="/images/soul-modified.jpg"

@@ -29,9 +29,9 @@ const MobileMenu = () => {
                         </Link>
                     ))}
                     <div className="pt-4 mt-4 border-t border-border">
-                        <Link href="#" className="w-full">
-                            <Button className="w-full" variant="blue">
-                                Get Started
+                        <Link href="#hero" className="w-full">
+                            <Button className="w-full text-white" variant="blue">
+                                Join Waitlist
                             </Button>
                         </Link>
                     </div>

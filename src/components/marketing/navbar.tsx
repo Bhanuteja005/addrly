@@ -32,9 +32,9 @@ const Navbar = () => {
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <Link href="/signup" className="hidden lg:block">
-                            <Button className="rounded-full bg-neutral-900 text-white hover:bg-neutral-800">
-                                Create DateMeDoc
+                        <Link href="#hero" className="hidden lg:block">
+                            <Button className="rounded-full bg-neutral-900 !text-white hover:bg-neutral-800 hover:!text-white">
+                                Join Waitlist
                             </Button>
                         </Link>
                         <MobileMenu />

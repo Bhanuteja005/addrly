@@ -26,7 +26,7 @@ const Pricing = () => {
             <div className="flex flex-col items-center justify-center max-w-2xl mx-auto">
                 <Container>
                     <div className="flex flex-col items-center text-center max-w-2xl mx-auto">
-                        <h2 className="text-2xl md:text-4xl lg:text-5xl font-heading font-medium !leading-snug mt-6">
+                        <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-medium !leading-snug mt-6">
                             Find the right plan for your <br className="hidden lg:block" /> dating journey
                         </h2>
                         <p className="text-base md:text-lg text-center text-accent-foreground/80 mt-6">

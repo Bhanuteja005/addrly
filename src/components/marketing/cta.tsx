@@ -10,7 +10,7 @@ const CTA = () => {
     return (
         <div className="relative flex flex-col items-center justify-center w-full py-20">
             <Container className="py-20 max-w-6xl mx-auto">
-                <div className="relative flex flex-col items-center justify-center py-12 lg:py-20 px-0 rounded-2xl lg:rounded-3xl bg-background/20 text-center border border-foreground/20 overflow-hidden">
+                <div className="relative flex flex-col items-center justify-center py-12 lg:py-20 px-4 rounded-2xl lg:rounded-3xl bg-background/20 text-center border border-foreground/20 overflow-hidden">
                     <Particles
                         refresh
                         ease={80}
@@ -40,15 +40,15 @@ const CTA = () => {
                             ease: "linear"
                         }}
                     />
-                    <h2 className="text-3xl md:text-5xl lg:text-6xl font-heading font-medium !leading-snug">
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-heading font-medium !leading-snug">
                         Ready to find your <br /> <span className="font-subheading italic">chronically online</span> match?
                     </h2>
                     <p className="text-sm md:text-lg text-center text-accent-foreground/80 max-w-2xl mx-auto mt-4">
                         Stop doom-scrolling alone. Create your DateMeDoc, connect your entire internet personality <span className="hidden lg:inline">and let AI find your perfect match based on actual compatibility.</span>
                     </p>
-                    <Link href="#pricing" className="mt-8">
+                    <Link href="#hero" className="mt-8 z-10">
                         <Button size="lg">
-                            Create Your DateMeDoc
+                            Join the Waitlist
                         </Button>
                     </Link>
                 </div>
