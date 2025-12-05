@@ -8,9 +8,9 @@ import { OrbitingCircles } from "../ui/orbiting-circles";
 
 const Hero = () => {
     return (
-        <div className="relative flex flex-col items-center justify-center w-full py-12">
+        <div className="relative flex flex-col items-center justify-center w-full py-16 lg:py-24 overflow-hidden">
 
-            <div className="absolute flex lg:hidden size-40 rounded-full bg-blue-500 blur-[10rem] top-0 left-1/2 -translate-x-1/2 -z-10"></div>
+            <div className="absolute inset-0 pointer-events-none"></div>
 
             <div className="flex flex-col items-center justify-center gap-y-6 relative">
                 <Container className="hidden lg:flex absolute inset-0 top-0 mb-auto flex-col items-center justify-center w-full min-h-screen -z-10">
@@ -56,7 +56,7 @@ const Hero = () => {
                         </button>
                     </Container>
                     <Container delay={0.15}>
-                        <h1 className="text-4xl md:text-4xl lg:text-7xl font-bold text-center !leading-tight max-w-4xl mx-auto">
+                        <h1 className="text-4xl md:text-4xl lg:text-7xl font-normal text-center !leading-tight max-w-4xl mx-auto">
                             Find your {" "}
                             <span className="">
                                 chronically online {" "}
@@ -81,9 +81,6 @@ const Hero = () => {
                     </Container>
                     <Container delay={0.3} className="relative">
                         <div className="relative rounded-xl lg:rounded-[32px] border border-border p-2 backdrop-blur-lg mt-0 max-w-6xl mx-auto">
-                            <div className="absolute top-1/8 left-1/2 -z-10 bg-gradient-to-r from-sky-500 to-blue-600 w-1/2 lg:w-3/4 -translate-x-1/2 h-1/4 -translate-y-1/2 inset-0 blur-[4rem] lg:blur-[10rem] animate-image-glow"></div>
-                            <div className="hidden lg:block absolute -top-1/8 left-1/2 -z-20 bg-blue-600 w-1/4 -translate-x-1/2 h-1/4 -translate-y-1/2 inset-0 blur-[10rem] animate-image-glow"></div>
-
                             <div className="rounded-lg lg:rounded-[22px] border border-border bg-background">
                                 <Image
                                     src="/images/soul-modified.jpg"
@@ -93,7 +90,6 @@ const Hero = () => {
                                     className="rounded-lg lg:rounded-[20px]"
                                 />
                             </div>
-
                         </div>
                         <div className="bg-gradient-to-t from-background to-transparent absolute bottom-0 inset-x-0 w-full h-1/2"></div>
                     </Container>

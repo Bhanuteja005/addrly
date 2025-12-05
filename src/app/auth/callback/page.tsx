@@ -22,16 +22,19 @@ export default function AuthCallbackPage() {
         }
 
         if (data.session) {
-          // Check if user has completed onboarding
+          // Check if user has completed all 3 onboarding steps
           const { data: profile } = await supabase
             .from("profiles")
-            .select("id")
-            .eq("user_id", data.session.user.id)
+            .select("full_name, avatar_url, date_me_doc, has_form, slug")
+            .eq("id", data.session.user.id)
             .single();
 
-          if (profile) {
-            router.push("/home");
+          if (profile && profile.full_name && profile.date_me_doc && profile.has_form) {
+            // All steps complete - redirect to profile preview
+            const slug = profile.full_name.toLowerCase().replace(/\s+/g, '-');
+            router.push(`/profile/${slug}`);
           } else {
+            // Incomplete onboarding - redirect to onboarding
             router.push("/onboarding");
           }
         } else {
@@ -48,10 +51,10 @@ export default function AuthCallbackPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-neutral-950">
+    <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
       <div className="text-center">
-        <LoaderIcon className="w-8 h-8 animate-spin text-white mx-auto mb-4" />
-        <p className="text-neutral-400">Completing sign in...</p>
+        <LoaderIcon className="w-8 h-8 animate-spin text-foreground mx-auto mb-4" />
+        <p className="text-muted-foreground">Completing sign in...</p>
       </div>
     </div>
   );

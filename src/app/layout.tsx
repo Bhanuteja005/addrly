@@ -7,6 +7,12 @@ import { subheading } from "@/constants/fonts";
 
 export const metadata = generateMetadata();
 
+export const viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+};
+
 export default function RootLayout({
     children,
 }: Readonly<{
@@ -16,13 +22,13 @@ export default function RootLayout({
         <html lang="en" suppressHydrationWarning>
             <body
                 className={cn(
-                    "min-h-screen bg-background text-foreground antialiased font-heading overflow-x-hidden !scrollbar-hide",
+                    "min-h-screen bg-background text-foreground antialiased font-base overflow-x-hidden !scrollbar-hide",
                     base.variable,
                     heading.variable,
                     subheading.variable,
                 )}
             >
-                    <Toaster richColors theme="dark" position="top-right" />
+                    <Toaster richColors theme="light" position="top-right" />
                     {children}
             </body>
         </html>

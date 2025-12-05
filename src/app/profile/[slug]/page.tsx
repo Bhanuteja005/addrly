@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LoaderIcon, Settings } from "lucide-react";
+import { LoaderIcon, Settings, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
@@ -16,22 +16,25 @@ interface Profile {
   id: string;
   full_name: string;
   avatar_url: string;
-  age?: number;
-  location?: string;
+  age: number;
+  location: string;
   date_me_doc: string;
   application_form: any;
   applications_count?: number;
-  slug?: string;
 }
 
-export default function HomePage() {
+export default function ProfilePreviewPage() {
   const router = useRouter();
+  const params = useParams();
+  const slug = params.slug as string;
+  
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     loadProfile();
-  }, []);
+  }, [slug]);
 
   const loadProfile = async () => {
     try {
@@ -42,34 +45,46 @@ export default function HomePage() {
         return;
       }
 
-      // Check if onboarding is complete
-      const { data: profileData } = await supabase
+      // Try to find profile by slug or user ID
+      let { data: profileData, error: slugError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', session.user.id)
+        .eq('slug', slug)
         .single();
 
+      if (!profileData || slugError) {
+        // Fallback to user ID
+        const { data: userProfileData, error: userError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (userProfileData) {
+          profileData = userProfileData;
+        }
+      }
+
       if (!profileData) {
+        toast.error("Profile not found");
         router.push('/onboarding');
         return;
       }
 
-      // Check if all steps are complete
-      if (!profileData.full_name || !profileData.date_me_doc || !profileData.has_form) {
-        router.push('/onboarding');
-        return;
-      }
+      setProfile(profileData as Profile);
+      setIsOwner(profileData.id === session.user.id);
 
       // Get applications count
-      const { count } = await supabase
-        .from('applications')
-        .select('*', { count: 'exact', head: true })
-        .eq('form_owner_id', session.user.id);
-
-      setProfile({
-        ...profileData as Profile,
-        applications_count: count || 0,
-      });
+      if (profileData.id === session.user.id) {
+        const { count } = await supabase
+          .from('applications')
+          .select('*', { count: 'exact', head: true })
+          .eq('form_owner_id', session.user.id);
+        
+        if (profileData) {
+          setProfile({ ...profileData as Profile, applications_count: count || 0 });
+        }
+      }
     } catch (error) {
       console.error('Load error:', error);
       toast.error("Failed to load profile");
@@ -123,15 +138,15 @@ export default function HomePage() {
             </Label>
             {field.type === 'text' && (
               <Input
-                placeholder={field.placeholder || 'Name'}
-                className="rounded-xl border-t-0 border-x-0 border-b-2 border-border bg-transparent px-0 focus-visible:ring-0 focus-visible:border-primary"
+                placeholder={field.placeholder || 'Enter your answer'}
+                className="rounded-xl"
                 disabled
               />
             )}
             {field.type === 'textarea' && (
               <textarea
                 placeholder={field.placeholder || 'Enter your answer'}
-                className="w-full min-h-[100px] rounded-xl border-t-0 border-x-0 border-b-2 border-border bg-transparent px-0 focus-visible:ring-0 focus-visible:border-primary resize-none"
+                className="w-full min-h-[100px] rounded-xl border border-input bg-background px-3 py-2 text-sm"
                 disabled
               />
             )}
@@ -174,7 +189,7 @@ export default function HomePage() {
               <Input
                 type="date"
                 disabled
-                className="rounded-xl border-t-0 border-x-0 border-b-2 border-border bg-transparent px-0 focus-visible:ring-0 focus-visible:border-primary"
+                className="rounded-xl"
               />
             )}
           </div>
@@ -203,19 +218,23 @@ export default function HomePage() {
       <header className="border-b border-border bg-background sticky top-0 z-10">
         <div className="w-full max-w-4xl lg:max-w-5xl xl:max-w-[1400px] 2xl:max-w-[1600px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-6 md:py-8">
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
+            <Link href="/home" className="flex items-center gap-2">
               <Icons.icon className="w-6 h-6 text-foreground" />
               <span className="text-xl font-base font-semibold">Addrly</span>
-            </div>
+            </Link>
             <div className="flex items-center gap-3">
-              <Button variant="outline" className="rounded-full" disabled>
-                {profile.applications_count || 0} applications
-              </Button>
-              <Link href="/account">
-                <Button variant="ghost" size="sm" className="rounded-full">
-                  <Settings className="w-4 h-4" />
-                </Button>
-              </Link>
+              {isOwner && (
+                <>
+                  <Button variant="outline" className="rounded-full" disabled>
+                    {profile.applications_count || 0} applications
+                  </Button>
+                  <Link href="/account">
+                    <Button variant="ghost" size="sm" className="rounded-full">
+                      <Settings className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
           <h1 className="text-4xl font-heading font-normal">
@@ -263,7 +282,7 @@ export default function HomePage() {
               dangerouslySetInnerHTML={{ __html: renderMarkdown(profile.date_me_doc) || '' }}
             />
             
-            {/* Embed placeholders */}
+            {/* Embed placeholders - would be parsed from markdown in production */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
               <div className="rounded-xl border border-border bg-green-50 p-6 min-h-[150px] flex items-center justify-center">
                 <span className="text-sm text-muted-foreground">Spotify Preview embed</span>
@@ -288,21 +307,42 @@ export default function HomePage() {
         {/* Application Form Section */}
         {profile.application_form && (
           <section className="mb-12">
-            <div className="space-y-6">
+            <h2 className="text-3xl font-heading font-normal mb-6">Application Form</h2>
+            <div className="bg-card rounded-xl border border-border p-8">
               {renderFormPreview()}
+              {isOwner ? (
+                <div className="mt-8 pt-6 border-t border-border">
+                  <Link href="/forms/create">
+                    <Button className="w-full rounded-full" size="lg">
+                      Edit Form
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="mt-8 pt-6 border-t border-border">
+                  <Button className="w-full rounded-full" size="lg" disabled>
+                    Submit Application
+                  </Button>
+                </div>
+              )}
             </div>
           </section>
         )}
 
-        {/* Create Form Button */}
-        <div className="mt-12 pt-8 border-t border-border">
-          <Link href="/onboarding/form">
-            <Button className="w-full rounded-full" size="lg">
-              Create form
-            </Button>
-          </Link>
-        </div>
+        {!profile.application_form && isOwner && (
+          <section className="mb-12">
+            <div className="bg-card rounded-xl border border-border p-8 text-center">
+              <p className="text-muted-foreground mb-6">You haven't created an application form yet.</p>
+              <Link href="/onboarding/form">
+                <Button className="rounded-full" size="lg">
+                  Create Form
+                </Button>
+              </Link>
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );
 }
+

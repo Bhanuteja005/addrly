@@ -54,27 +54,27 @@ export default function LeaderboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-950">
-        <LoaderIcon className="w-8 h-8 animate-spin text-white" />
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <LoaderIcon className="w-8 h-8 animate-spin text-foreground" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="bg-neutral-900 border-b border-neutral-800">
+      <header className="bg-card border-b border-border/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Link href="/home">
-                <Button variant="ghost" size="sm" className="text-white hover:bg-neutral-800">
+                <Button variant="ghost" size="sm" className="text-foreground hover:bg-muted">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Home
                 </Button>
               </Link>
             </div>
-            <h1 className="text-2xl font-bold text-white">Leaderboard</h1>
+            <h1 className="text-2xl font-semibold text-foreground">Leaderboard</h1>
             <div></div>
           </div>
         </div>
@@ -84,13 +84,13 @@ export default function LeaderboardPage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-8">
           <Trophy className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-          <h2 className="text-3xl font-bold text-white mb-2">Top Dating Forms</h2>
-          <p className="text-neutral-400">Discover the most popular forms on Addrly</p>
+          <h2 className="text-3xl font-semibold text-foreground mb-2">Top Dating Forms</h2>
+          <p className="text-muted-foreground">Discover the most popular forms on Addrly</p>
         </div>
 
         <div className="space-y-4">
           {leaderboard.map((entry, index) => (
-            <Card key={entry.id} className="bg-neutral-900 border-neutral-800 hover:border-purple-500/50 transition-colors">
+            <Card key={entry.id} className="bg-card border-border hover:border-accent transition-colors">
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
                   <div className="flex-shrink-0">
@@ -104,10 +104,10 @@ export default function LeaderboardPage() {
                     </div>
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-white mb-1">{entry.title}</h3>
-                    <p className="text-neutral-400 text-sm">by {entry.owner_name}</p>
+                    <h3 className="text-lg font-semibold text-foreground mb-1">{entry.title}</h3>
+                    <p className="text-muted-foreground text-sm">by {entry.owner_name}</p>
                   </div>
-                  <div className="flex items-center gap-6 text-sm text-neutral-400">
+                  <div className="flex items-center gap-6 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Users className="w-4 h-4" />
                       <span>{entry.applications_count}</span>
@@ -120,7 +120,7 @@ export default function LeaderboardPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-neutral-700 text-white hover:bg-neutral-800"
+                    className="border-border text-foreground hover:bg-muted"
                     onClick={() => router.push(`/forms/${entry.id}`)}
                   >
                     View Form
@@ -132,9 +132,9 @@ export default function LeaderboardPage() {
         </div>
 
         <div className="text-center mt-8">
-          <p className="text-neutral-400 mb-4">Want to see your form here?</p>
+          <p className="text-muted-foreground mb-4">Want to see your form here?</p>
           <Link href="/forms/create">
-            <Button className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white">
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
               Create Your Form
             </Button>
           </Link>

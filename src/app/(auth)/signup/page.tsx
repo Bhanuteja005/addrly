@@ -38,6 +38,7 @@ const SignUpPage = () => {
         setIsLoading(true);
 
         try {
+            const appUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
             const { data, error } = await supabase.auth.signUp({
                 email: emailAddress,
                 password: password,
@@ -45,6 +46,7 @@ const SignUpPage = () => {
                     data: {
                         full_name: fullName,
                     },
+                    emailRedirectTo: `${appUrl}/auth/callback`,
                 }
             });
 
@@ -77,10 +79,11 @@ const SignUpPage = () => {
     const handleGoogleSignUp = async () => {
         setIsLoading(true);
         try {
+            const appUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: `${window.location.origin}/auth/callback`
+                    redirectTo: `${appUrl}/auth/callback`
                 }
             });
 

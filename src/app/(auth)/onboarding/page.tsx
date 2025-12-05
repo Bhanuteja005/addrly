@@ -3,749 +3,199 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
-import { apiClient } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { LoaderIcon, ChevronRight, ChevronLeft } from "lucide-react";
+import { LoaderIcon, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
-import { OnboardingFormData } from "@/types/user";
+import Link from "next/link";
 
-const OnboardingPage = () => {
+interface OnboardingStatus {
+  basicInfo: boolean;
+  dateMeDoc: boolean;
+  form: boolean;
+}
+
+export default function OnboardingPage() {
     const router = useRouter();
-    const [isLoading, setIsLoading] = useState(false);
     const [isChecking, setIsChecking] = useState(true);
-    const [currentStep, setCurrentStep] = useState(1);
-    const totalSteps = 5;
-
-    const [formData, setFormData] = useState<OnboardingFormData>({
-        full_name: '',
-        age: 18,
-        gender: '',
-        location: '',
-        bio: '',
-        interests: [],
-        looking_for: '',
-        relationship_type: '',
-        personality_type: '',
-        hobbies: [],
-        lifestyle: '',
-        education: '',
-        occupation: '',
-        social_media_urls: {
-            instagram: '',
-            twitter: '',
-            linkedin: '',
-            tiktok: ''
-        },
-        preferred_age_range: {
-            min: 18,
-            max: 35
-        },
-        deal_breakers: [],
-        values: []
-    });
+  const [status, setStatus] = useState<OnboardingStatus>({
+    basicInfo: false,
+    dateMeDoc: false,
+    form: false,
+  });
+  const [userName, setUserName] = useState("");
+  const [userAvatar, setUserAvatar] = useState("");
 
     useEffect(() => {
-        checkAuth();
-    }, [router]);
+    checkAuthAndStatus();
+  }, []);
 
-    const checkAuth = async () => {
+  const checkAuthAndStatus = async () => {
         try {
             const { data: { session } } = await supabase.auth.getSession();
+      
             if (!session) {
                 router.push('/signin');
                 return;
             }
 
-            // Check if user has already completed onboarding
+      // Get user info
+      const name = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || '';
+      const avatar = session.user.user_metadata?.avatar_url || '';
+      setUserName(name);
+      setUserAvatar(avatar);
+
+      // Check completion status
             const { data: profile } = await supabase
                 .from('profiles')
-                .select('profile_completed')
+        .select('*')
                 .eq('id', session.user.id)
                 .single();
 
-            if (profile?.profile_completed) {
-                // User already completed onboarding, redirect to home
-                router.push('/home');
-                return;
-            }
-
-            // Pre-fill name from auth metadata
-            if (session.user.user_metadata?.full_name) {
-                setFormData(prev => ({
-                    ...prev,
-                    full_name: session.user.user_metadata.full_name
-                }));
-            }
-        } catch (error) {
-            console.error('Auth check error:', error);
-        } finally {
-            setIsChecking(false);
-        }
-    };
-
-    const handleInputChange = (field: string, value: any) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
-    };
-
-    const handleNestedChange = (parent: string, field: string, value: any) => {
-        setFormData(prev => ({
-            ...prev,
-            [parent]: {
-                ...(prev[parent as keyof OnboardingFormData] as any),
-                [field]: value
-            }
-        }));
-    };
-
-    const handleArrayToggle = (field: string, value: string) => {
-        setFormData(prev => {
-            const currentArray = prev[field as keyof OnboardingFormData] as string[];
-            if (currentArray.includes(value)) {
-                return {
-                    ...prev,
-                    [field]: currentArray.filter(item => item !== value)
-                };
-            } else {
-                return {
-                    ...prev,
-                    [field]: [...currentArray, value]
-                };
-            }
+      if (profile) {
+        setStatus({
+          basicInfo: !!(profile.full_name && (profile.avatar_url || profile.avatar_url === null)),
+          dateMeDoc: !!profile.date_me_doc,
+          form: !!profile.has_form,
         });
-    };
 
-    const validateStep = (step: number): boolean => {
-        switch (step) {
-            case 1:
-                if (!formData.full_name || !formData.age || !formData.gender) {
-                    toast.error("Please fill in all basic information");
-                    return false;
-                }
-                if (formData.age < 18 || formData.age > 100) {
-                    toast.error("Age must be between 18 and 100");
-                    return false;
-                }
-                return true;
-            case 2:
-                if (!formData.location || !formData.bio) {
-                    toast.error("Please fill in your location and bio");
-                    return false;
-                }
-                if (formData.bio.length < 50) {
-                    toast.error("Bio must be at least 50 characters");
-                    return false;
-                }
-                return true;
-            case 3:
-                if (formData.interests.length === 0) {
-                    toast.error("Please select at least one interest");
-                    return false;
-                }
-                return true;
-            case 4:
-                if (!formData.looking_for || !formData.relationship_type) {
-                    toast.error("Please specify what you're looking for");
-                    return false;
-                }
-                return true;
-            case 5:
-                return true;
-            default:
-                return true;
-        }
-    };
-
-    const nextStep = () => {
-        if (validateStep(currentStep)) {
-            setCurrentStep(prev => Math.min(prev + 1, totalSteps));
-        }
-    };
-
-    const prevStep = () => {
-        setCurrentStep(prev => Math.max(prev - 1, 1));
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!validateStep(currentStep)) {
+        // If all complete, generate slug and redirect to profile preview
+        if (profile.full_name && profile.date_me_doc && profile.has_form) {
+          const slug = profile.full_name.toLowerCase().replace(/\s+/g, '-');
+          
+          // Update profile with slug if not exists
+          if (!profile.slug) {
+            await supabase
+              .from('profiles')
+              .update({ slug })
+              .eq('id', session.user.id);
+          }
+          
+          router.push(`/profile/${slug}`);
             return;
         }
-
-        setIsLoading(true);
-
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            
-            if (!session) {
-                throw new Error('No active session');
-            }
-
-            // Submit to backend API
-            const response = await apiClient.post('/api/users/onboarding', formData);
-
-            if (response.data.success) {
-                toast.success("Profile completed successfully!");
-                router.push('/home');
-            }
-        } catch (err: any) {
-            console.error('Onboarding error:', err);
-            toast.error(err.response?.data?.error || "Failed to complete onboarding. Please try again.");
+      }
+    } catch (error) {
+      console.error('Status check error:', error);
         } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const interestOptions = [
-        "Music", "Movies", "Travel", "Fitness", "Cooking", "Reading",
-        "Gaming", "Art", "Photography", "Dancing", "Sports", "Fashion",
-        "Technology", "Nature", "Food", "Pets", "Writing", "Yoga"
-    ];
-
-    const hobbyOptions = [
-        "Hiking", "Painting", "Playing Instruments", "Coding", "Gardening",
-        "Cycling", "Swimming", "Photography", "Crafting", "Baking",
-        "Running", "Meditation", "Volunteering", "Board Games"
-    ];
-
-    const valueOptions = [
-        "Honesty", "Loyalty", "Kindness", "Humor", "Ambition",
-        "Family-Oriented", "Adventure", "Intelligence", "Creativity",
-        "Empathy", "Independence", "Communication"
-    ];
-
-    const dealBreakerOptions = [
-        "Smoking", "No Job", "Poor Hygiene", "Rudeness", "Dishonesty",
-        "No Ambition", "Party Lifestyle", "Different Politics",
-        "No Pets", "Long Distance"
-    ];
+      setIsChecking(false);
+    }
+  };
 
     if (isChecking) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950">
-                <LoaderIcon className="w-8 h-8 animate-spin text-white" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <LoaderIcon className="w-8 h-8 animate-spin text-foreground" />
             </div>
         );
     }
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 py-12 px-4">
-            <div className="max-w-3xl mx-auto">
-                {/* Progress Bar */}
-                <div className="mb-8">
-                    <div className="flex items-center justify-between mb-2">
-                        <h2 className="text-sm font-medium text-neutral-300">
-                            Step {currentStep} of {totalSteps}
-                        </h2>
-                        <span className="text-sm text-neutral-400">
-                            {Math.round((currentStep / totalSteps) * 100)}% Complete
-                        </span>
-                    </div>
-                    <div className="w-full h-2 bg-neutral-800 rounded-full overflow-hidden">
-                        <div 
-                            className="h-full bg-gradient-to-r from-pink-500 to-purple-600 transition-all duration-300 ease-out"
-                            style={{ width: `${(currentStep / totalSteps) * 100}%` }}
-                        />
-                    </div>
-                </div>
+  const allComplete = status.basicInfo && status.dateMeDoc && status.form;
 
-                {/* Form Container */}
-                <div className="bg-neutral-900/50 backdrop-blur-xl rounded-2xl border border-neutral-800 p-8 shadow-2xl">
-                    <form onSubmit={handleSubmit} className="space-y-8">
-                        {/* Step 1: Basic Information */}
-                        {currentStep === 1 && (
-                            <div className="space-y-6">
-                                <div>
-                                    <h1 className="text-3xl font-bold text-white mb-2">
-                                        Let's start with the basics
+  return (
+    <div className="min-h-screen bg-background py-12 md:py-16 lg:py-20 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20">
+      <div className="w-full max-w-2xl sm:max-w-3xl md:max-w-4xl lg:max-w-5xl xl:max-w-[1400px] 2xl:max-w-[1600px] mx-auto">
+        <div className="text-center mb-12 md:mb-16 lg:mb-20">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-normal mb-4 md:mb-6">
+            Complete Your Profile
                                     </h1>
-                                    <p className="text-neutral-400">
-                                        Tell us a bit about yourself
+          <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground">
+            Set up your DateMeDoc in 3 simple steps
                                     </p>
                                 </div>
 
-                                <div className="space-y-4">
-                                    <div>
-                                        <Label htmlFor="full_name">Full Name *</Label>
-                                        <Input
-                                            id="full_name"
-                                            value={formData.full_name}
-                                            onChange={(e) => handleInputChange('full_name', e.target.value)}
-                                            placeholder="Enter your full name"
-                                            className="mt-1"
-                                        />
+        <div className="space-y-4 md:space-y-6 mb-12 md:mb-16">
+          {/* Step 1: Basic Information */}
+          <Link href="/onboarding/basic-info">
+            <div className={`group relative flex items-center gap-4 md:gap-6 p-6 md:p-8 lg:p-10 rounded-2xl border-2 transition-all ${
+              status.basicInfo 
+                ? 'border-primary bg-card' 
+                : 'border-border/50 bg-card/50 hover:border-border hover:bg-card'
+            }`}>
+              <div className={`flex-shrink-0 w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full flex items-center justify-center text-xl md:text-2xl lg:text-3xl font-heading font-normal ${
+                status.basicInfo 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'bg-muted text-muted-foreground'
+              }`}>
+                1
                                     </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <Label htmlFor="age">Age *</Label>
-                                            <Input
-                                                id="age"
-                                                type="number"
-                                                min="18"
-                                                max="100"
-                                                value={formData.age}
-                                                onChange={(e) => handleInputChange('age', parseInt(e.target.value))}
-                                                className="mt-1"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <Label htmlFor="gender">Gender *</Label>
-                                            <Select
-                                                value={formData.gender}
-                                                onValueChange={(value) => handleInputChange('gender', value)}
-                                            >
-                                                <SelectTrigger className="mt-1">
-                                                    <SelectValue placeholder="Select gender" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="male">Male</SelectItem>
-                                                    <SelectItem value="female">Female</SelectItem>
-                                                    <SelectItem value="non-binary">Non-binary</SelectItem>
-                                                    <SelectItem value="other">Other</SelectItem>
-                                                    <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <Label htmlFor="occupation">Occupation</Label>
-                                        <Input
-                                            id="occupation"
-                                            value={formData.occupation}
-                                            onChange={(e) => handleInputChange('occupation', e.target.value)}
-                                            placeholder="What do you do?"
-                                            className="mt-1"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <Label htmlFor="education">Education</Label>
-                                        <Select
-                                            value={formData.education}
-                                            onValueChange={(value) => handleInputChange('education', value)}
-                                        >
-                                            <SelectTrigger className="mt-1">
-                                                <SelectValue placeholder="Select education level" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="high-school">High School</SelectItem>
-                                                <SelectItem value="some-college">Some College</SelectItem>
-                                                <SelectItem value="bachelors">Bachelor's Degree</SelectItem>
-                                                <SelectItem value="masters">Master's Degree</SelectItem>
-                                                <SelectItem value="phd">PhD</SelectItem>
-                                                <SelectItem value="other">Other</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Step 2: Location & Bio */}
-                        {currentStep === 2 && (
-                            <div className="space-y-6">
-                                <div>
-                                    <h1 className="text-3xl font-bold text-white mb-2">
-                                        Where are you and what's your story?
-                                    </h1>
-                                    <p className="text-neutral-400">
-                                        Help others get to know you better
+              <div className="flex-1 min-w-0">
+                <h2 className="text-xl md:text-2xl lg:text-3xl font-heading font-normal mb-1 md:mb-2">
+                  Basic Information
+                </h2>
+                <p className="text-sm md:text-base lg:text-lg text-muted-foreground">
+                  Add your name and profile picture
                                     </p>
                                 </div>
-
-                                <div className="space-y-4">
-                                    <div>
-                                        <Label htmlFor="location">Location *</Label>
-                                        <Input
-                                            id="location"
-                                            value={formData.location}
-                                            onChange={(e) => handleInputChange('location', e.target.value)}
-                                            placeholder="City, Country"
-                                            className="mt-1"
-                                        />
+              <ArrowRight className="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
                                     </div>
+          </Link>
 
-                                    <div>
-                                        <Label htmlFor="bio">About You * (min. 50 characters)</Label>
-                                        <Textarea
-                                            id="bio"
-                                            value={formData.bio}
-                                            onChange={(e) => handleInputChange('bio', e.target.value)}
-                                            placeholder="Tell us about yourself, your passions, what makes you unique..."
-                                            className="mt-1 min-h-[150px]"
-                                        />
-                                        <p className="text-xs text-neutral-500 mt-1">
-                                            {formData.bio.length} / 50 characters minimum
-                                        </p>
+          {/* Step 2: DateMeDoc */}
+          <Link href="/onboarding/datemedoc">
+            <div className={`group relative flex items-center gap-4 md:gap-6 p-6 md:p-8 lg:p-10 rounded-2xl border-2 transition-all ${
+              status.dateMeDoc 
+                ? 'border-primary bg-card' 
+                : 'border-border/50 bg-card/50 hover:border-border hover:bg-card'
+            }`}>
+              <div className={`flex-shrink-0 w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full flex items-center justify-center text-xl md:text-2xl lg:text-3xl font-heading font-normal ${
+                status.dateMeDoc 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'bg-muted text-muted-foreground'
+              }`}>
+                2
                                     </div>
-
-                                    <div>
-                                        <Label htmlFor="lifestyle">Lifestyle</Label>
-                                        <Select
-                                            value={formData.lifestyle}
-                                            onValueChange={(value) => handleInputChange('lifestyle', value)}
-                                        >
-                                            <SelectTrigger className="mt-1">
-                                                <SelectValue placeholder="Select your lifestyle" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="active">Active & Outdoorsy</SelectItem>
-                                                <SelectItem value="balanced">Balanced</SelectItem>
-                                                <SelectItem value="homebody">Homebody</SelectItem>
-                                                <SelectItem value="social">Very Social</SelectItem>
-                                                <SelectItem value="adventurous">Adventurous</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    <div>
-                                        <Label htmlFor="personality">Personality Type</Label>
-                                        <Input
-                                            id="personality"
-                                            value={formData.personality_type}
-                                            onChange={(e) => handleInputChange('personality_type', e.target.value)}
-                                            placeholder="e.g., INTJ, Enneagram 4, etc."
-                                            className="mt-1"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Step 3: Interests & Hobbies */}
-                        {currentStep === 3 && (
-                            <div className="space-y-6">
-                                <div>
-                                    <h1 className="text-3xl font-bold text-white mb-2">
-                                        What do you love doing?
-                                    </h1>
-                                    <p className="text-neutral-400">
-                                        Select your interests and hobbies (Choose at least 3)
+              <div className="flex-1 min-w-0">
+                <h2 className="text-xl md:text-2xl lg:text-3xl font-heading font-normal mb-1 md:mb-2">
+                  Create Your DateMeDoc
+                </h2>
+                <p className="text-sm md:text-base lg:text-lg text-muted-foreground">
+                  Write about yourself with rich text, images, and embeds
                                     </p>
                                 </div>
-
-                                <div className="space-y-6">
-                                    <div>
-                                        <Label className="text-base mb-3 block">Interests *</Label>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            {interestOptions.map((interest) => (
-                                                <div
-                                                    key={interest}
-                                                    className={`flex items-center space-x-2 p-4 rounded-lg border-2 transition-all min-h-[48px] ${
-                                                        formData.interests.includes(interest)
-                                                            ? 'border-pink-500 bg-pink-500/10 text-white'
-                                                            : 'border-neutral-700 hover:border-neutral-600 text-neutral-300'
-                                                    }`}
-                                                >
-                                                    <Checkbox
-                                                        id={`interest-${interest}`}
-                                                        checked={formData.interests.includes(interest)}
-                                                        onCheckedChange={() => handleArrayToggle('interests', interest)}
-                                                    />
-                                                    <Label
-                                                        htmlFor={`interest-${interest}`}
-                                                        className="cursor-pointer flex-1 text-sm leading-tight"
-                                                    >
-                                                        {interest}
-                                                    </Label>
+              <ArrowRight className="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
                                                 </div>
-                                            ))}
-                                        </div>
-                                    </div>
+          </Link>
 
-                                    <div>
-                                        <Label className="text-base mb-3 block">Hobbies</Label>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            {hobbyOptions.map((hobby) => (
-                                                <div
-                                                    key={hobby}
-                                                    className={`flex items-center space-x-2 p-4 rounded-lg border-2 transition-all min-h-[48px] ${
-                                                        formData.hobbies?.includes(hobby)
-                                                            ? 'border-purple-500 bg-purple-500/10 text-white'
-                                                            : 'border-neutral-700 hover:border-neutral-600 text-neutral-300'
-                                                    }`}
-                                                >
-                                                    <Checkbox
-                                                        id={`hobby-${hobby}`}
-                                                        checked={formData.hobbies?.includes(hobby)}
-                                                        onCheckedChange={() => handleArrayToggle('hobbies', hobby)}
-                                                    />
-                                                    <Label
-                                                        htmlFor={`hobby-${hobby}`}
-                                                        className="cursor-pointer flex-1 text-sm leading-tight"
-                                                    >
-                                                        {hobby}
-                                                    </Label>
+          {/* Step 3: Application Form */}
+          <Link href="/onboarding/form">
+            <div className={`group relative flex items-center gap-4 md:gap-6 p-6 md:p-8 lg:p-10 rounded-2xl border-2 transition-all ${
+              status.form 
+                ? 'border-primary bg-card' 
+                : 'border-border/50 bg-card/50 hover:border-border hover:bg-card'
+            }`}>
+              <div className={`flex-shrink-0 w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full flex items-center justify-center text-xl md:text-2xl lg:text-3xl font-heading font-normal ${
+                status.form 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'bg-muted text-muted-foreground'
+              }`}>
+                3
                                                 </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Step 4: Looking For */}
-                        {currentStep === 4 && (
-                            <div className="space-y-6">
-                                <div>
-                                    <h1 className="text-3xl font-bold text-white mb-2">
-                                        What are you looking for?
-                                    </h1>
-                                    <p className="text-neutral-400">
-                                        Tell us about your ideal match
+              <div className="flex-1 min-w-0">
+                <h2 className="text-xl md:text-2xl lg:text-3xl font-heading font-normal mb-1 md:mb-2">
+                  Create Application Form
+                </h2>
+                <p className="text-sm md:text-base lg:text-lg text-muted-foreground">
+                  Build questions for potential dates to answer
                                     </p>
                                 </div>
-
-                                <div className="space-y-4">
-                                    <div>
-                                        <Label htmlFor="looking_for">I'm looking for *</Label>
-                                        <Select
-                                            value={formData.looking_for}
-                                            onValueChange={(value) => handleInputChange('looking_for', value)}
-                                        >
-                                            <SelectTrigger className="mt-1">
-                                                <SelectValue placeholder="Select what you're looking for" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="men">Men</SelectItem>
-                                                <SelectItem value="women">Women</SelectItem>
-                                                <SelectItem value="everyone">Everyone</SelectItem>
-                                                <SelectItem value="non-binary">Non-binary People</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+              <ArrowRight className="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+                                    </div>
+          </Link>
                                     </div>
 
-                                    <div>
-                                        <Label htmlFor="relationship_type">Relationship Type *</Label>
-                                        <Select
-                                            value={formData.relationship_type}
-                                            onValueChange={(value) => handleInputChange('relationship_type', value)}
-                                        >
-                                            <SelectTrigger className="mt-1">
-                                                <SelectValue placeholder="What kind of relationship?" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="long-term">Long-term Relationship</SelectItem>
-                                                <SelectItem value="dating">Dating</SelectItem>
-                                                <SelectItem value="casual">Casual</SelectItem>
-                                                <SelectItem value="friendship">Friendship</SelectItem>
-                                                <SelectItem value="not-sure">Not Sure Yet</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    <div>
-                                        <Label className="block mb-2">Preferred Age Range</Label>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <Label htmlFor="age_min" className="text-sm text-neutral-600">Min Age</Label>
-                                                <Input
-                                                    id="age_min"
-                                                    type="number"
-                                                    min="18"
-                                                    max="100"
-                                                    value={formData.preferred_age_range?.min}
-                                                    onChange={(e) => handleNestedChange('preferred_age_range', 'min', parseInt(e.target.value))}
-                                                    className="mt-1"
-                                                />
-                                            </div>
-                                            <div>
-                                                <Label htmlFor="age_max" className="text-sm text-neutral-600">Max Age</Label>
-                                                <Input
-                                                    id="age_max"
-                                                    type="number"
-                                                    min="18"
-                                                    max="100"
-                                                    value={formData.preferred_age_range?.max}
-                                                    onChange={(e) => handleNestedChange('preferred_age_range', 'max', parseInt(e.target.value))}
-                                                    className="mt-1"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <Label className="text-base mb-3 block">Important Values</Label>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            {valueOptions.map((value) => (
-                                                <div
-                                                    key={value}
-                                                    className={`flex items-center space-x-2 p-4 rounded-lg border-2 transition-all min-h-[48px] ${
-                                                        formData.values?.includes(value)
-                                                            ? 'border-blue-500 bg-blue-500/10 text-white'
-                                                            : 'border-neutral-700 hover:border-neutral-600 text-neutral-300'
-                                                    }`}
-                                                >
-                                                    <Checkbox
-                                                        id={`value-${value}`}
-                                                        checked={formData.values?.includes(value)}
-                                                        onCheckedChange={() => handleArrayToggle('values', value)}
-                                                    />
-                                                    <Label
-                                                        htmlFor={`value-${value}`}
-                                                        className="cursor-pointer flex-1 text-sm leading-tight"
-                                                    >
-                                                        {value}
-                                                    </Label>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <Label className="text-base mb-3 block">Deal Breakers</Label>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            {dealBreakerOptions.map((breaker) => (
-                                                <div
-                                                    key={breaker}
-                                                    className={`flex items-center space-x-2 p-4 rounded-lg border-2 transition-all min-h-[48px] ${
-                                                        formData.deal_breakers?.includes(breaker)
-                                                            ? 'border-red-500 bg-red-500/10 text-white'
-                                                            : 'border-neutral-700 hover:border-neutral-600 text-neutral-300'
-                                                    }`}
-                                                >
-                                                    <Checkbox
-                                                        id={`breaker-${breaker}`}
-                                                        checked={formData.deal_breakers?.includes(breaker)}
-                                                        onCheckedChange={() => handleArrayToggle('deal_breakers', breaker)}
-                                                    />
-                                                    <Label
-                                                        htmlFor={`breaker-${breaker}`}
-                                                        className="cursor-pointer flex-1 text-sm leading-tight"
-                                                    >
-                                                        {breaker}
-                                                    </Label>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
+        {allComplete && (
+          <div className="text-center">
+            <Button
+              onClick={() => router.push(`/profile/${userName.toLowerCase().replace(/\s+/g, '-')}`)}
+              size="lg"
+              className="rounded-full px-8 md:px-10 lg:px-12 py-6 md:py-7 lg:py-8 text-base md:text-lg lg:text-xl"
+            >
+              View Your Profile
+              <ArrowRight className="w-5 h-5 md:w-6 md:h-6 ml-2" />
+            </Button>
                             </div>
                         )}
-
-                        {/* Step 5: Social Media & Final */}
-                        {currentStep === 5 && (
-                            <div className="space-y-6">
-                                <div>
-                                    <h1 className="text-3xl font-bold text-white mb-2">
-                                        Connect your social media (Optional)
-                                    </h1>
-                                    <p className="text-neutral-400">
-                                        This helps us analyze your personality and find better matches
-                                    </p>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <div>
-                                        <Label htmlFor="instagram">Instagram URL</Label>
-                                        <Input
-                                            id="instagram"
-                                            value={formData.social_media_urls?.instagram}
-                                            onChange={(e) => handleNestedChange('social_media_urls', 'instagram', e.target.value)}
-                                            placeholder="https://instagram.com/yourusername"
-                                            className="mt-1"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <Label htmlFor="twitter">Twitter/X URL</Label>
-                                        <Input
-                                            id="twitter"
-                                            value={formData.social_media_urls?.twitter}
-                                            onChange={(e) => handleNestedChange('social_media_urls', 'twitter', e.target.value)}
-                                            placeholder="https://twitter.com/yourusername"
-                                            className="mt-1"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <Label htmlFor="linkedin">LinkedIn URL</Label>
-                                        <Input
-                                            id="linkedin"
-                                            value={formData.social_media_urls?.linkedin}
-                                            onChange={(e) => handleNestedChange('social_media_urls', 'linkedin', e.target.value)}
-                                            placeholder="https://linkedin.com/in/yourusername"
-                                            className="mt-1"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <Label htmlFor="tiktok">TikTok URL</Label>
-                                        <Input
-                                            id="tiktok"
-                                            value={formData.social_media_urls?.tiktok}
-                                            onChange={(e) => handleNestedChange('social_media_urls', 'tiktok', e.target.value)}
-                                            placeholder="https://tiktok.com/@yourusername"
-                                            className="mt-1"
-                                        />
-                                    </div>
-
-                                    <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mt-6">
-                                        <h3 className="font-semibold text-blue-400 mb-2">🔒 Privacy Note</h3>
-                                        <p className="text-sm text-neutral-300">
-                                            Your social media information is used only for AI-powered personality analysis 
-                                            to find compatible matches. We never post on your behalf or share your data publicly.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Navigation Buttons */}
-                        <div className="flex items-center justify-between pt-6 border-t border-neutral-800">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={prevStep}
-                                disabled={currentStep === 1}
-                                className="rounded-full border-neutral-700 text-neutral-300 hover:bg-neutral-800 hover:text-white"
-                            >
-                                <ChevronLeft className="w-4 h-4 mr-2" />
-                                Previous
-                            </Button>
-
-                            {currentStep < totalSteps ? (
-                                <Button
-                                    type="button"
-                                    onClick={nextStep}
-                                    className="rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:from-pink-600 hover:to-purple-700"
-                                >
-                                    Next
-                                    <ChevronRight className="w-4 h-4 ml-2" />
-                                </Button>
-                            ) : (
-                                <Button
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:from-pink-600 hover:to-purple-700"
-                                >
-                                    {isLoading ? (
-                                        <>
-                                            <LoaderIcon className="w-4 h-4 animate-spin mr-2" />
-                                            Completing...
-                                        </>
-                                    ) : (
-                                        'Complete Profile'
-                                    )}
-                                </Button>
-                            )}
-                        </div>
-                    </form>
-                </div>
             </div>
         </div>
     );
-};
-
-export default OnboardingPage;
+}
