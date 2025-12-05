@@ -23,15 +23,23 @@ export default function AuthCallbackPage() {
 
         if (data.session) {
           // Check if user has completed all 3 onboarding steps
-          const { data: profile } = await supabase
+          const { data: profile, error: profileError } = await supabase
             .from("profiles")
             .select("full_name, avatar_url, date_me_doc, has_form, slug")
             .eq("id", data.session.user.id)
             .single();
 
+          // Handle case where profile doesn't exist yet (new user)
+          if (profileError && profileError.code !== 'PGRST116') {
+            console.error("Profile fetch error:", profileError);
+            // Still redirect to onboarding for new users
+            router.push("/onboarding");
+            return;
+          }
+
           if (profile && profile.full_name && profile.date_me_doc && profile.has_form) {
             // All steps complete - redirect to profile preview
-            const slug = profile.full_name.toLowerCase().replace(/\s+/g, '-');
+            const slug = profile.slug || profile.full_name.toLowerCase().replace(/\s+/g, '-');
             router.push(`/profile/${slug}`);
           } else {
             // Incomplete onboarding - redirect to onboarding
