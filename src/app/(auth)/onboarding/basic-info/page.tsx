@@ -44,31 +44,16 @@ export default function BasicInfoPage() {
       // Check if already saved
       try {
         const { data: profile } = await supabase
-          .from('profiles')
-          .select('full_name, avatar_url')
-          .eq('id', session.user.id)
+          .from('user_profiles')
+          .select('full_name')
+          .eq('auth_user_id', session.user.id)
           .single();
 
         if (profile?.full_name) {
           setFullName(profile.full_name);
-          if (profile.avatar_url) {
-            setAvatarUrl(profile.avatar_url);
-            setPreviewUrl(profile.avatar_url);
-          }
         }
       } catch (error: any) {
-        // If avatar_url column doesn't exist, just load name
-        if (error.message?.includes('avatar_url')) {
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('id', session.user.id)
-            .single();
-          
-          if (profileData?.full_name) {
-            setFullName(profileData.full_name);
-          }
-        }
+        console.error('Error loading profile:', error);
       }
     } catch (error) {
       console.error('Load error:', error);
@@ -147,7 +132,8 @@ export default function BasicInfoPage() {
 
       // Update profile - only include fields that exist
       const updateData: any = {
-        id: session.user.id,
+        auth_user_id: session.user.id,
+        email: session.user.email,
         full_name: fullName.trim(),
         updated_at: new Date().toISOString(),
       };
@@ -163,7 +149,7 @@ export default function BasicInfoPage() {
       }
 
       const { error } = await supabase
-        .from('profiles')
+        .from('user_profiles')
         .upsert(updateData);
 
       if (error) throw error;

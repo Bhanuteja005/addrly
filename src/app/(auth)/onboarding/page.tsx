@@ -46,9 +46,9 @@ export default function OnboardingPage() {
 
       // Check completion status
             const { data: profile } = await supabase
-                .from('profiles')
+                .from('user_profiles')
         .select('*')
-                .eq('id', session.user.id)
+                .eq('auth_user_id', session.user.id)
                 .single();
 
       if (profile) {
@@ -65,9 +65,9 @@ export default function OnboardingPage() {
           // Update profile with slug if not exists
           if (!profile.slug) {
             await supabase
-              .from('profiles')
+              .from('user_profiles')
               .update({ slug })
-              .eq('id', session.user.id);
+              .eq('auth_user_id', session.user.id);
           }
           
           router.push(`/profile/${slug}`);

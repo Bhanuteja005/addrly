@@ -35,7 +35,6 @@ export async function POST(request: NextRequest) {
         user_profiles (
           id,
           full_name,
-          avatar_url,
           age,
           location,
           date_me_doc,

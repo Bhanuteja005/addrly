@@ -44,7 +44,7 @@ export default function HomePage() {
 
       // Check if onboarding is complete
       const { data: profileData } = await supabase
-        .from('profiles')
+        .from('user_profiles')
         .select('*')
         .eq('id', session.user.id)
         .single();

@@ -46,9 +46,9 @@ export default function FormBuilderPage() {
       }
 
       const { data: profile } = await supabase
-        .from('profiles')
+        .from('user_profiles')
         .select('application_form')
-        .eq('id', session.user.id)
+        .eq('auth_user_id', session.user.id)
         .single();
 
       if (profile?.application_form) {
@@ -149,13 +149,13 @@ export default function FormBuilderPage() {
       };
 
       const { error } = await supabase
-        .from('profiles')
-        .upsert({
-          id: session.user.id,
+        .from('user_profiles')
+        .update({
           application_form: formData,
           has_form: true,
           updated_at: new Date().toISOString(),
-        });
+        })
+        .eq('auth_user_id', session.user.id);
 
       if (error) throw error;
 

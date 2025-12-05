@@ -40,7 +40,7 @@ const SignInPage = () => {
             if (data.user) {
                 // Check if profile is completed
                 const { data: profile } = await supabase
-                    .from('profiles')
+                    .from('user_profiles')
                     .select('profile_completed')
                     .eq('id', data.user.id)
                     .single();

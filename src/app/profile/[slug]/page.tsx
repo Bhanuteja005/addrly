@@ -47,7 +47,7 @@ export default function ProfilePreviewPage() {
 
       // Try to find profile by slug or user ID
       let { data: profileData, error: slugError } = await supabase
-        .from('profiles')
+        .from('user_profiles')
         .select('*')
         .eq('slug', slug)
         .single();
@@ -55,9 +55,9 @@ export default function ProfilePreviewPage() {
       if (!profileData || slugError) {
         // Fallback to user ID
         const { data: userProfileData, error: userError } = await supabase
-          .from('profiles')
+          .from('user_profiles')
           .select('*')
-          .eq('id', session.user.id)
+          .eq('auth_user_id', session.user.id)
           .single();
         
         if (userProfileData) {

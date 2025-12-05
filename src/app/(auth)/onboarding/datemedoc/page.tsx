@@ -29,9 +29,9 @@ export default function DateMeDocPage() {
       }
 
       const { data: profile } = await supabase
-        .from('profiles')
+        .from('user_profiles')
         .select('date_me_doc')
-        .eq('id', session.user.id)
+        .eq('auth_user_id', session.user.id)
         .single();
 
       if (profile?.date_me_doc) {
@@ -60,12 +60,12 @@ export default function DateMeDocPage() {
       }
 
       const { error } = await supabase
-        .from('profiles')
-        .upsert({
-          id: session.user.id,
+        .from('user_profiles')
+        .update({
           date_me_doc: content.trim(),
           updated_at: new Date().toISOString(),
-        });
+        })
+        .eq('auth_user_id', session.user.id);
 
       if (error) throw error;
 

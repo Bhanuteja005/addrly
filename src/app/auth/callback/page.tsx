@@ -24,9 +24,9 @@ export default function AuthCallbackPage() {
         if (data.session) {
           // Check if user has completed all 3 onboarding steps
           const { data: profile, error: profileError } = await supabase
-            .from("profiles")
-            .select("full_name, avatar_url, date_me_doc, has_form, slug")
-            .eq("id", data.session.user.id)
+            .from("user_profiles")
+            .select("name, slug")
+            .eq("auth_user_id", data.session.user.id)
             .single();
 
           // Handle case where profile doesn't exist yet (new user)
@@ -37,10 +37,9 @@ export default function AuthCallbackPage() {
             return;
           }
 
-          if (profile && profile.full_name && profile.date_me_doc && profile.has_form) {
-            // All steps complete - redirect to profile preview
-            const slug = profile.slug || profile.full_name.toLowerCase().replace(/\s+/g, '-');
-            router.push(`/profile/${slug}`);
+          if (profile && profile.name) {
+            // Profile exists - redirect to home
+            router.push("/home");
           } else {
             // Incomplete onboarding - redirect to onboarding
             router.push("/onboarding");
