@@ -42,3 +42,5 @@ next-env.d.ts
 
 dummy
 ignore
+# clerk configuration (can include secrets)
+/.clerk/

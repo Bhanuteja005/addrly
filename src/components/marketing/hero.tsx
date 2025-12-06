@@ -1,10 +1,11 @@
 import { ArrowRightIcon } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import Container from "../global/container";
 import Icons from "../global/icons";
 import { Button } from "../ui/button";
 import { OrbitingCircles } from "../ui/orbiting-circles";
+import { SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import Link from "next/link";
 
 const Hero = () => {
     return (
@@ -57,26 +58,35 @@ const Hero = () => {
                     </Container>
                     <Container delay={0.15}>
                         <h1 className="text-4xl md:text-4xl lg:text-7xl font-normal text-center !leading-tight max-w-4xl mx-auto">
-                            Find your {" "}
+                            Dating app for the {" "}
                             <span className="">
-                                chronically online {" "}
+                                chronically online.
                             </span>
-                            soulmate
                         </h1>
                     </Container>
                     <Container delay={0.2}>
                         <p className="max-w-xl mx-auto mt-2 text-base lg:text-lg text-center text-muted-foreground">
-                            The dating app that psychoanalyzes your entire internet presence. Create a DateMeDoc, accept boyfriend applications, and let AI match you based on vibes.
+                            Stop swiping. Start applying. Create your DateMeDoc, open boyfriend or girlfriend applications, and let AI find someone who actually gets your internet brain.
                         </p>
                     </Container>
                     <Container delay={0.25} className="z-20">
                         <div className="flex items-center justify-center mt-6 gap-x-4">
-                            <Link href="/signup" className="flex items-center gap-2 group">
-                                <Button size="lg">
-                                    Create Your DateMeDoc
-                                    <ArrowRightIcon className="size-4 group-hover:translate-x-1 transition-all duration-300" />
-                                </Button>
-                            </Link>
+                            <SignedOut>
+                                <SignUpButton mode="modal">
+                                    <Button size="lg" className="group cursor-pointer">
+                                        Join the Waitlist
+                                        <ArrowRightIcon className="size-4 group-hover:translate-x-1 transition-all duration-300" />
+                                    </Button>
+                                </SignUpButton>
+                            </SignedOut>
+                            <SignedIn>
+                                <Link href="/dashboard" className="flex items-center gap-2 group">
+                                    <Button size="lg">
+                                        Go to Dashboard
+                                        <ArrowRightIcon className="size-4 group-hover:translate-x-1 transition-all duration-300" />
+                                    </Button>
+                                </Link>
+                            </SignedIn>
                         </div>
                     </Container>
                     <Container delay={0.3} className="relative">
