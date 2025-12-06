@@ -1,78 +1,97 @@
+# Addrly - Dating App for the Chronically Online
 
-# 🚀 Addrly - Dating App for the Chronically Online
+A waitlist landing page for Addrly, a dating app that lets you create DateMeDocs and open boyfriend/girlfriend applications.
 
-## 🌟 Introduction
-Addrly is the unhinged dating app that matches you based on your entire internet personality. Create your DateMeDoc, let people apply to date you, and find your chronically online soulmate through AI-powered psychoanalysis of your digital footprint. Built with modern technologies, it offers a sleek interface for managing applications, compatibility matching, and personality analytics.
+## Tech Stack
 
+- **Framework**: Next.js 15 (App Router)
+- **Authentication**: Clerk
+- **Styling**: Tailwind CSS
+- **Animations**: Framer Motion
+- **Deployment**: Vercel
 
+## Getting Started
 
-## 💻 Tech Stack
+### Prerequisites
 
-- **Next.js 15** – React framework for production
-- **TailwindCSS** – Utility-first CSS framework
-- **Shadcn UI** – Reusable component system
-- **Framer Motion** – Smooth animations
-- **TypeScript** – Type-safe code
-- **Number Flow** – Smooth number animations
+- Node.js 18+
+- npm or yarn
+- Clerk account (free tier available)
 
-## 🛠️ Installation
+### Installation
 
 1. Clone the repository:
-    ```bash
-    git clone https://github.com/Shreyas-29/Addrly.git
-    ```
-
-2. Install dependencies:
-    ```bash
-    pnpm install
-    # or
-    yarn install
-    ```
-
-3. Run the development server:
-    ```bash
-    pnpm run dev
-    # or
-    yarn dev
-    ```
-
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
-
-## 🔧 Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-NEXT_PUBLIC_APP_URL=your_app_url
-NEXT_PUBLIC_APP_NAME=Addrly
-NEXT_PUBLIC_AUTHOR_NAME=Your Name
+```bash
+git clone <your-repo-url>
+cd addrly
 ```
 
-## ✨ Key Features
+2. Install dependencies:
+```bash
+npm install --legacy-peer-deps
+```
 
-- **DateMeDoc Builder** - Create personalized dating resumes with your preferences
-- **AI Psychoanalysis Matching** - Advanced AI that analyzes your entire digital footprint
-- **Application Management** - Review boyfriend/girlfriend applications like hiring
-- **Social Media Integration** - Connect Twitter, Instagram, Spotify, and blogs
-- **Personality Compatibility** - 60+ personality traits analysis for perfect matches
-- **Chronically Online Focus** - Built specifically for internet culture natives
+3. Set up environment variables:
+```bash
+cp .env.example .env.local
+```
 
-## 🚀 Deploy on Vercel
+4. Add your Clerk keys to `.env.local`:
+   - Go to [Clerk Dashboard](https://dashboard.clerk.com)
+   - Create a new application or use an existing one
+   - Copy your API keys
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new) from the creators of Next.js.
+5. Run the development server:
+```bash
+npm run dev
+```
 
-Check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+6. Open [http://localhost:3000](http://localhost:3000)
 
+## Deployment
 
-## 🤝 Contributing
+### Vercel (Recommended)
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+1. Push your code to GitHub
+2. Import the project in [Vercel](https://vercel.com)
+3. Add environment variables in Vercel:
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+   - `CLERK_SECRET_KEY`
+4. Deploy!
 
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+### Environment Variables
 
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk publishable key | Yes |
+| `CLERK_SECRET_KEY` | Clerk secret key | Yes |
 
+## Project Structure
 
+```
+src/
+├── app/
+│   ├── (marketing)/     # Landing page
+│   ├── layout.tsx       # Root layout with Clerk provider
+│   └── not-found.tsx    # 404 page
+├── components/
+│   ├── global/          # Shared components
+│   ├── marketing/       # Landing page sections
+│   └── ui/              # UI primitives
+├── constants/           # App constants
+├── lib/                 # Utilities
+├── middleware.ts        # Clerk middleware
+└── styles/              # Global styles
+```
+
+## Features
+
+- 🎨 Modern, animated landing page
+- 🔐 Clerk authentication (modal-based signup)
+- 📱 Fully responsive design
+- ⚡ Optimized for performance
+- 🚀 Ready for Vercel deployment
+
+## License
+
+MIT

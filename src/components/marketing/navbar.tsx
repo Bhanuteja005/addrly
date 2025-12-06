@@ -4,6 +4,7 @@ import Icons from "../global/icons";
 import Wrapper from "../global/wrapper";
 import { Button } from "../ui/button";
 import MobileMenu from "./mobile-menu";
+import { SignUpButton } from "@clerk/nextjs";
 
 const Navbar = () => {
     return (
@@ -32,11 +33,11 @@ const Navbar = () => {
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <Link href="/signup" className="hidden lg:block">
-                            <Button className="rounded-full bg-neutral-900 text-white hover:bg-neutral-800">
-                                Create DateMeDoc
+                        <SignUpButton mode="modal">
+                            <Button className="rounded-full bg-neutral-900 text-white hover:bg-neutral-800 cursor-pointer">
+                                Join Waitlist
                             </Button>
-                        </Link>
+                        </SignUpButton>
                         <MobileMenu />
                     </div>
                 </div>

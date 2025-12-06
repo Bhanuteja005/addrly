@@ -4,8 +4,7 @@ import Container from "../global/container";
 import Icons from "../global/icons";
 import { Button } from "../ui/button";
 import { OrbitingCircles } from "../ui/orbiting-circles";
-import { SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
-import Link from "next/link";
+import { SignUpButton } from "@clerk/nextjs";
 
 const Hero = () => {
     return (
@@ -71,22 +70,12 @@ const Hero = () => {
                     </Container>
                     <Container delay={0.25} className="z-20">
                         <div className="flex items-center justify-center mt-6 gap-x-4">
-                            <SignedOut>
-                                <SignUpButton mode="modal">
-                                    <Button size="lg" className="group cursor-pointer">
-                                        Join the Waitlist
-                                        <ArrowRightIcon className="size-4 group-hover:translate-x-1 transition-all duration-300" />
-                                    </Button>
-                                </SignUpButton>
-                            </SignedOut>
-                            <SignedIn>
-                                <Link href="/dashboard" className="flex items-center gap-2 group">
-                                    <Button size="lg">
-                                        Go to Dashboard
-                                        <ArrowRightIcon className="size-4 group-hover:translate-x-1 transition-all duration-300" />
-                                    </Button>
-                                </Link>
-                            </SignedIn>
+                            <SignUpButton mode="modal">
+                                <Button size="lg" className="group cursor-pointer">
+                                    Join the Waitlist
+                                    <ArrowRightIcon className="size-4 group-hover:translate-x-1 transition-all duration-300" />
+                                </Button>
+                            </SignUpButton>
                         </div>
                     </Container>
                     <Container delay={0.3} className="relative">

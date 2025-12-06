@@ -1,10 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
 import Container from "../global/container";
 import { Button } from "../ui/button";
 import Particles from "../ui/particles";
+import { SignUpButton } from "@clerk/nextjs";
 
 const CTA = () => {
     return (
@@ -46,11 +46,13 @@ const CTA = () => {
                     <p className="text-sm md:text-lg text-center text-accent-foreground/80 max-w-2xl mx-auto mt-4">
                         Stop doom-scrolling alone. Create your DateMeDoc, connect your entire internet personality <span className="hidden lg:inline">and let AI find your perfect match based on actual compatibility.</span>
                     </p>
-                    <Link href="#pricing" className="mt-8">
-                        <Button size="lg">
-                            Create Your DateMeDoc
-                        </Button>
-                    </Link>
+                    <div className="mt-8">
+                        <SignUpButton mode="modal">
+                            <Button size="lg" className="cursor-pointer">
+                                Join the Waitlist
+                            </Button>
+                        </SignUpButton>
+                    </div>
                 </div>
             </Container>
         </div>
